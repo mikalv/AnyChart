@@ -350,10 +350,11 @@ goog.addDependency('../../../../src/palettes/HatchFills.js', ['anychart.palettes
 goog.addDependency('../../../../src/palettes/Markers.js', ['anychart.palettes.Markers'], ['anychart.core.Base', 'anychart.enums', 'goog.array'], {});
 goog.addDependency('../../../../src/palettes/RangeColors.js', ['anychart.palettes.RangeColors'], ['anychart.color', 'anychart.core.Base', 'goog.array', 'goog.color'], {});
 goog.addDependency('../../../../src/palettes/palettes.js', ['anychart.palettes'], ['anychart.palettes.DistinctColors', 'anychart.palettes.HatchFills', 'anychart.palettes.Markers', 'anychart.palettes.RangeColors'], {});
+goog.addDependency('../../../../src/pareto/BaseParetoMapping.js', ['anychart.paretoModule.BaseParetoMapping'], ['anychart.data.Mapping'], {});
 goog.addDependency('../../../../src/pareto/Chart.js', ['anychart.paretoModule.Chart'], ['anychart.core.CartesianBase', 'anychart.data.Set', 'anychart.enums', 'anychart.paretoModule.Mapping', 'anychart.paretoModule.Series', 'anychart.paretoModule.SeriesMapping', 'anychart.scales.Linear', 'anychart.scales.Ordinal'], {});
-goog.addDependency('../../../../src/pareto/Mapping.js', ['anychart.paretoModule.Mapping'], ['anychart.data.Mapping'], {});
+goog.addDependency('../../../../src/pareto/Mapping.js', ['anychart.paretoModule.Mapping'], ['anychart.paretoModule.BaseParetoMapping'], {});
 goog.addDependency('../../../../src/pareto/Series.js', ['anychart.paretoModule.Series'], ['anychart.core.series.Cartesian', 'anychart.core.utils.IInteractiveSeries', 'anychart.format.Context'], {});
-goog.addDependency('../../../../src/pareto/SeriesMapping.js', ['anychart.paretoModule.SeriesMapping'], ['anychart.data.Mapping'], {});
+goog.addDependency('../../../../src/pareto/SeriesMapping.js', ['anychart.paretoModule.SeriesMapping'], ['anychart.paretoModule.BaseParetoMapping'], {});
 goog.addDependency('../../../../src/pareto/defaultTheme.js', ['anychart.paretoModule.defaultTheme'], [], {});
 goog.addDependency('../../../../src/pareto/pareto.module.js', ['anychart.paretoModule.entry'], ['anychart.core.drawers.Column', 'anychart.core.drawers.Line', 'anychart.core.drawers.Spline', 'anychart.core.drawers.StepLine', 'anychart.paretoModule.Chart'], {});
 goog.addDependency('../../../../src/performance.js', ['anychart.performance'], ['anychart.base'], {});

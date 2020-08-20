@@ -272,6 +272,22 @@ anychart.data.Mapping.prototype.initMappingInfo = function(opt_mapping) {
 };
 
 
+/** @inheritDoc */
+anychart.data.Mapping.prototype.derive = function() {
+  var view = anychart.data.Mapping.base(this, 'derive');
+  var derived = new anychart.data.Mapping(view);
+
+  var mappings = this.getMappings();
+  var mapping;
+  if (mappings.length) {
+    mapping = mappings[0].getMapping();
+    derived.initMappingInfo(mapping);
+  }
+
+  return derived;
+};
+
+
 /**
  * Getter for mapping.
  * @return {!Object.<Array.<number|string>>} - Mapping.

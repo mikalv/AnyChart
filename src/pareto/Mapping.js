@@ -1,11 +1,11 @@
 goog.provide('anychart.paretoModule.Mapping');
-goog.require('anychart.data.Mapping');
+goog.require('anychart.paretoModule.BaseParetoMapping');
 
 
 
 /**
  * Pareto view.
- * @extends {anychart.data.Mapping}
+ * @extends {anychart.paretoModule.BaseParetoMapping}
  * @param {!anychart.data.IView} parentView Parent view. The last view is a mapping.
  * @constructor
  */
@@ -42,7 +42,7 @@ anychart.paretoModule.Mapping = function(parentView) {
    */
   this.sum_ = 0;
 };
-goog.inherits(anychart.paretoModule.Mapping, anychart.data.Mapping);
+goog.inherits(anychart.paretoModule.Mapping, anychart.paretoModule.BaseParetoMapping);
 
 
 /**

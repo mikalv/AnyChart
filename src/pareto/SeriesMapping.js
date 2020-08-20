@@ -1,18 +1,18 @@
 goog.provide('anychart.paretoModule.SeriesMapping');
-goog.require('anychart.data.Mapping');
+goog.require('anychart.paretoModule.BaseParetoMapping');
 
 
 
 /**
  * Mapping for pareto series.
  * @param {!anychart.data.IView} parentView
- * @extends {anychart.data.Mapping}
+ * @extends {anychart.paretoModule.BaseParetoMapping}
  * @constructor
  */
 anychart.paretoModule.SeriesMapping = function(parentView) {
   anychart.paretoModule.SeriesMapping.base(this, 'constructor', parentView);
 };
-goog.inherits(anychart.paretoModule.SeriesMapping, anychart.data.Mapping);
+goog.inherits(anychart.paretoModule.SeriesMapping, anychart.paretoModule.BaseParetoMapping);
 
 
 /** @inheritDoc */
