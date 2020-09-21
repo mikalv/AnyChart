@@ -462,7 +462,11 @@ anychart.waterfallModule.Chart.prototype.drawStackLabels = function() {
 anychart.waterfallModule.Chart.prototype.drawLabels = function() {
   this.stackLabels().clear();
 
-  if (this.getSeriesCount() > 1 && this.stackLabels().getOption('enabled')) {
+  var countOfVisibleSeries = goog.array.reduce(this.seriesList, function(count, series) {
+    return series.enabled() ? count + 1 : count;
+  }, 0);
+
+  if (countOfVisibleSeries > 1 && this.stackLabels().getOption('enabled')) {
     this.drawStackLabels();
   }
 
@@ -697,12 +701,16 @@ anychart.waterfallModule.Chart.prototype.getStackBounds = function(index) {
  */
 anychart.waterfallModule.Chart.prototype.getStackSum = function(index) {
   return goog.array.reduce(this.seriesList, function(sum, currentSeries) {
-    var iterator = currentSeries.getIterator();
-    iterator.select(index);
+    if (currentSeries.enabled()) {
+      var iterator = currentSeries.getIterator();
+      iterator.select(index);
 
-    var absolute = iterator.meta('absolute');
+      var absolute = iterator.meta('absolute');
 
-    return sum + absolute;
+      return sum + absolute;
+    }
+
+    return sum;
   }, 0);
 };
 
@@ -731,14 +739,17 @@ anychart.waterfallModule.Chart.prototype.isStackVisible = function(index) {
  */
 anychart.waterfallModule.Chart.prototype.getStackTop = function(index) {
   return goog.array.reduce(this.seriesList, function(top, currentSeries) {
-    var iterator = currentSeries.getIterator();
+    if (currentSeries.enabled()) {
+      var iterator = currentSeries.getIterator();
 
-    iterator.select(index);
+      iterator.select(index);
 
-    var stackedValue = /**@type {number}*/(iterator.meta('stackedValue'));
-    var stackedZero = /**@type {number}*/(iterator.meta('stackedZero'));
+      var stackedValue = /**@type {number}*/(iterator.meta('stackedValue'));
+      var stackedZero = /**@type {number}*/(iterator.meta('stackedZero'));
 
-    return Math.max(top, stackedValue, stackedZero);
+      return Math.max(top, stackedValue, stackedZero);
+    }
+    return top;
   }, -Infinity);
 };
 
@@ -752,14 +763,17 @@ anychart.waterfallModule.Chart.prototype.getStackTop = function(index) {
  */
 anychart.waterfallModule.Chart.prototype.getStackBottom = function(index) {
   return goog.array.reduce(this.seriesList, function(bottom, currentSeries) {
-    var iterator = currentSeries.getIterator();
+    if (currentSeries.enabled()) {
+      var iterator = currentSeries.getIterator();
 
-    iterator.select(index);
+      iterator.select(index);
 
-    var stackedValue = /**@type {number}*/(iterator.meta('stackedValue'));
-    var stackedZero = /**@type {number}*/(iterator.meta('stackedZero'));
+      var stackedValue = /**@type {number}*/(iterator.meta('stackedValue'));
+      var stackedZero = /**@type {number}*/(iterator.meta('stackedZero'));
 
-    return Math.min(stackedValue, stackedZero, bottom);
+      return Math.min(stackedValue, stackedZero, bottom);
+    }
+    return bottom;
   }, Infinity);
 };
 
