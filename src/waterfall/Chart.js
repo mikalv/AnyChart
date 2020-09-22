@@ -794,6 +794,9 @@ anychart.waterfallModule.Chart.prototype.seriesInvalidated = function(event) {
 anychart.waterfallModule.Chart.prototype.serialize = function() {
   var json = anychart.waterfallModule.Chart.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.waterfallModule.Chart.PROPERTY_DESCRIPTORS, json['chart']);
+  json['chart']['stackLabels'] = this.stackLabels().serialize();
+
+
   return json;
 };
 
@@ -801,6 +804,12 @@ anychart.waterfallModule.Chart.prototype.serialize = function() {
 /** @inheritDoc */
 anychart.waterfallModule.Chart.prototype.setupByJSON = function(config, opt_default) {
   anychart.waterfallModule.Chart.base(this, 'setupByJSON', config, opt_default);
+
+  var stackLabelsConfig = config['stackLabels'];
+  if (stackLabelsConfig) {
+    this.stackLabels().setupInternal(!!opt_default, stackLabelsConfig);
+  }
+
   anychart.core.settings.deserialize(this, anychart.waterfallModule.Chart.PROPERTY_DESCRIPTORS, config);
 };
 
