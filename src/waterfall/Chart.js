@@ -330,7 +330,7 @@ anychart.core.settings.populate(anychart.waterfallModule.Chart, anychart.waterfa
 anychart.waterfallModule.Chart.prototype.getFormatProviderForStackedLabel = function(index) {
   var provider = new anychart.format.Context();
 
-  var value = this.getStackSum(index);
+  var value = this.getStackAbsolutesSum(index);
 
   var values = {
     'index': {value: index, type: anychart.enums.TokenType.NUMBER},
@@ -693,7 +693,7 @@ anychart.waterfallModule.Chart.prototype.getStackBounds = function(index) {
 
 
 /**
- * Returns sum of stack.
+ * Returns sum of stack values.
  *
  * @param {number} index - Stack index.
  *
@@ -705,7 +705,30 @@ anychart.waterfallModule.Chart.prototype.getStackSum = function(index) {
       var iterator = currentSeries.getIterator();
       iterator.select(index);
 
-      var absolute = iterator.meta('absolute');
+      var value = iterator.get('value') || 0;
+
+      return sum + value;
+    }
+
+    return sum;
+  }, 0);
+};
+
+
+/**
+ * Returns sum of stack absolute values.
+ *
+ * @param {number} index - Stack index.
+ *
+ * @return {number}
+ */
+anychart.waterfallModule.Chart.prototype.getStackAbsolutesSum = function(index) {
+  return goog.array.reduce(this.seriesList, function(sum, currentSeries) {
+    if (currentSeries.enabled()) {
+      var iterator = currentSeries.getIterator();
+      iterator.select(index);
+
+      var absolute = iterator.meta('absolute') || 0;
 
       return sum + absolute;
     }
