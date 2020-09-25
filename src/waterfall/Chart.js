@@ -744,8 +744,8 @@ anychart.waterfallModule.Chart.prototype.getStackTop = function(index) {
 
       iterator.select(index);
 
-      var stackedValue = /**@type {number}*/(iterator.meta('stackedValue'));
-      var stackedZero = /**@type {number}*/(iterator.meta('stackedZero'));
+      var stackedValue = /**@type {number}*/(iterator.meta('stackedValue')) || 0;
+      var stackedZero = /**@type {number}*/(iterator.meta('stackedZero')) || 0;
 
       return Math.max(top, stackedValue, stackedZero);
     }
@@ -768,8 +768,8 @@ anychart.waterfallModule.Chart.prototype.getStackBottom = function(index) {
 
       iterator.select(index);
 
-      var stackedValue = /**@type {number}*/(iterator.meta('stackedValue'));
-      var stackedZero = /**@type {number}*/(iterator.meta('stackedZero'));
+      var stackedValue = /**@type {number}*/(iterator.meta('stackedValue')) || 0;
+      var stackedZero = /**@type {number}*/(iterator.meta('stackedZero')) || 0;
 
       return Math.min(stackedValue, stackedZero, bottom);
     }
