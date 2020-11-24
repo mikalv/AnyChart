@@ -85,6 +85,7 @@ anychart.waterfallModule.Drawer.prototype.updatePointOnAnimate = function(point)
 
 /** @inheritDoc */
 anychart.waterfallModule.Drawer.prototype.drawSubsequentPoint = function(point, state) {
+  // if (point.currentPoint_.data.x === 'b') console.log('drawSubsequentPoint', point.currentPoint_.meta)
   var rising = /** @type {number} */(point.meta('diff')) >= 0;
   var isTotal = /** @type {boolean} */(point.meta('isTotal'));
   var name, hatchName;
