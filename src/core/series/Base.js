@@ -4053,20 +4053,6 @@ anychart.core.series.Base.prototype.makeStackedMeta = function(rowInfo, yNames, 
     'nextValue': yScale.transform(rowInfo.meta('stackedValueNext'), 0.5),
     'nextZero': yScale.transform(rowInfo.meta('stackedZeroNext'), 0.5)
   };
-  // if (rowInfo.currentPoint_.data.x === 'b') {
-    // if (rowInfo.currentPoint_.data.value === 0) {
-    //   var proxy = new Proxy(rowInfo.currentPoint_.meta, {
-    //     set(obj, prop, newval) {
-    //       if (prop === 'value') debugger;
-    //       obj[prop] = newval;
-    //       return true;
-    //     }
-    //   });
-    //   rowInfo.currentPoint_.meta = proxy;
-    // }
-    // console.log(map, rowInfo.currentPoint_.data);
-    //
-  // }
   this.makePointsMetaFromMap(rowInfo, map, xRatio);
   rowInfo.meta('zeroMissing', rowInfo.meta('stackedMissing'));
 

@@ -176,7 +176,6 @@ anychart.waterfallModule.Chart.prototype.postProcessStacking = function(drawingP
         point.meta['stackedValuePrev'] += prevValue;
         point.meta['stackedZeroNext'] += prevValue;
         point.meta['stackedValueNext'] += prevValue;
-        // console.log(point.meta['stackedZero']);
       }
       yScale.extendDataRange(point.meta['stackedValue']);
       yScale.extendDataRange(point.meta['stackedValuePrev']);
