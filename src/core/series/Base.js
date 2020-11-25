@@ -3917,7 +3917,10 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
       point is treated as zero value and is drawn in positive direction. Total
       points are always drawn as absolute value, not diff.
      */
-    var val = (isWaterfall && !isTotal) ? Number(rowInfo.meta('diff')) : Number(rowInfo.get('value'));
+    var val = (isWaterfall && !isTotal) ?
+        Number(rowInfo.meta('diff')) :
+        Number(rowInfo.get('value'));
+
     //Condition below also fixes XML restoration.
     var isZero = goog.isNull(rawVal) ? false : (!isNaN(val) && val == 0); //Draw zero to positive side. Considers closure compiler obfuscation.
     var diff = Math.abs(y - zero);
