@@ -3901,14 +3901,23 @@ anychart.core.series.Base.prototype.makePointsMetaFromMap = function(rowInfo, ma
  * @protected
  */
 anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(rowInfo, yNames, yColumns, pointMissing, xRatio) {
-  // if (rowInfo.currentPoint_.data.x === 'b' && rowInfo.currentPoint_.data.value === 0) debugger;
   if (!rowInfo.meta('missing')) {
     var shared = rowInfo.meta('shared');
+
+    var isWaterfall = this.getType() == anychart.enums.WaterfallSeriesType.WATERFALL;
+    var isTotal = rowInfo.meta('isTotal');
 
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
     var rawVal = rowInfo.get('value');
-    var val = Number(rowInfo.get('value'));
+    /*
+      DVF-4537 Condition fixes waterfall bug in absolute data mode, when first point has
+      positive value and second point has value 0. In this case second point
+      should be drawn as a negative diff, but because 'value' field is checked,
+      point is treated as zero value and is drawn in positive direction. Total
+      points are always drawn as absolute value, not diff.
+     */
+    var val = (isWaterfall && !isTotal) ? Number(rowInfo.meta('diff')) : Number(rowInfo.get('value'));
     //Condition below also fixes XML restoration.
     var isZero = goog.isNull(rawVal) ? false : (!isNaN(val) && val == 0); //Draw zero to positive side. Considers closure compiler obfuscation.
     var diff = Math.abs(y - zero);
@@ -3916,11 +3925,11 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
 
     var newZero, newY;
     var positive = zero >= y;
-    // if (isZero) {
-    //   var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
-    //   var inverted = this.yScale().inverted();
-    //   positive = !(isVertical ^ inverted);
-    // }
+    if (isZero) {
+      var isVertical = /** @type {boolean} */ (this.getOption('isVertical'));
+      var inverted = this.yScale().inverted();
+      positive = !(isVertical ^ inverted);
+    }
 
     //fixes DVF-3048
     var hasNotZero = shared.hasNotZero;
