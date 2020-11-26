@@ -3904,12 +3904,13 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
   if (!rowInfo.meta('missing')) {
     var shared = rowInfo.meta('shared');
 
-    var isWaterfall = this.getType() == anychart.enums.WaterfallSeriesType.WATERFALL;
-    var isTotal = rowInfo.meta('isTotal');
-
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
     var rawVal = rowInfo.get('value');
+
+    var isWaterfall = this.getType() == anychart.enums.WaterfallSeriesType.WATERFALL;
+    var isTotal = rowInfo.meta('isTotal');
+
     /*
       DVF-4537 Condition fixes waterfall bug in absolute data mode, when first point has
       positive value and second point has value 0. In this case second point
