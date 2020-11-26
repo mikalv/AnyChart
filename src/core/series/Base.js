@@ -3785,6 +3785,16 @@ anychart.core.series.Base.prototype.getPostLastPoint = function() {
 };
 
 
+/**
+ * Returns point value.
+ * @param {anychart.data.IRowInfo} point - Point.
+ * @return {*}
+ */
+anychart.core.series.Base.prototype.getPointValue = function(point) {
+  return point.get('value');
+};
+
+
 //endregion
 //region --- Data to Pixels transformation
 /**
@@ -3906,21 +3916,9 @@ anychart.core.series.Base.prototype.makeMinPointLengthStackedMeta = function(row
 
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
-    var rawVal = rowInfo.get('value');
 
-    var isWaterfall = this.getType() == anychart.enums.WaterfallSeriesType.WATERFALL;
-    var isTotal = rowInfo.meta('isTotal');
-
-    /*
-      DVF-4537 Condition fixes waterfall bug in absolute data mode, when first point has
-      positive value and second point has value 0. In this case second point
-      should be drawn as a negative diff, but because 'value' field is checked,
-      point is treated as zero value and is drawn in positive direction. Total
-      points are always drawn as absolute value, not diff.
-     */
-    var val = (isWaterfall && !isTotal) ?
-        Number(rowInfo.meta('diff')) :
-        Number(rowInfo.get('value'));
+    var rawVal = this.getPointValue(rowInfo);
+    var val = Number(rawVal);
 
     //Condition below also fixes XML restoration.
     var isZero = goog.isNull(rawVal) ? false : (!isNaN(val) && val == 0); //Draw zero to positive side. Considers closure compiler obfuscation.
@@ -3989,8 +3987,10 @@ anychart.core.series.Base.prototype.makeMinPointLengthUnstackedMeta = function(r
   if (!rowInfo.meta('missing')) {
     var y = /** @type {number} */ (rowInfo.meta('value'));
     var zero = /** @type {number} */ (rowInfo.meta('zero'));
-    var rawVal = rowInfo.get('value');
-    var val = Number(rowInfo.get('value'));
+
+    var rawVal = this.getPointValue(rowInfo);
+    var val = Number(rawVal);
+
     //Condition below also fixes XML restoration.
     var isZero = goog.isNull(rawVal) ? false : (!isNaN(val) && val == 0); //Draw zero to positive side. Considers closure compiler obfuscation.
     var diff = Math.abs(y - zero);
