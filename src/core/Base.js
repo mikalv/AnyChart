@@ -64,7 +64,8 @@ anychart.ConsistencyState = {
    */
   CHART_LABELS: 1 << 8,
   // We also add SeparateChart states here to not to add prefix SEPARATE_CHART.
-  // But if bullet or spark chart will need some new consistency states, there is a possibility to add 2 here.
+  // But if any of anychart.core.Chart direct descendants chart will need some new consistency states
+  // there would be a possibility to add 1 here (LEGEND consistency state).
   CHART_LEGEND: 1 << 9,
   CHART_CREDITS: 1 << 10,
   CHART_ANIMATION: 1 << 11,
