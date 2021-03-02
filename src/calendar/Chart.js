@@ -22,6 +22,10 @@ anychart.calendarModule.Chart = function (opt_data, opt_csvSettings) {
 
   this.data(opt_data || null, opt_csvSettings);
 
+  this.daysStroke_ = '2 #76a7fa';
+  // this.daysStroke_ = '4 #fff';
+  this.daysFill_ = acgraph.hatchFill('backward-diagonal', 'black 0.5', 1, 7);
+
   this.invalidate(anychart.ConsistencyState.ALL);
 };
 goog.inherits(anychart.calendarModule.Chart, anychart.core.SeparateChart);
@@ -264,6 +268,47 @@ anychart.calendarModule.Chart.prototype.drawDebugBorder = function (bounds) {
 };
 
 
+anychart.calendarModule.Chart.prototype.drawDebugDays = function (bounds) {
+  var daysSpacing = 0;
+  var totalDays = 365;
+  var offset = 2;
+
+  this.size_ = Math.floor((bounds.width - 54 * daysSpacing) / 53);
+  console.log('SIZE:', this.size_);
+
+  if (!this.dayPath_) {
+    this.dayPath_ = this.rootLayer.path();
+    this.dayPath_.stroke(this.daysStroke_);
+    this.dayPath_.fill(this.daysFill_);
+  }
+
+  var n = anychart.utils.applyPixelShift;
+
+  this.dayPath_.clear();
+
+  for (var curDay = offset; curDay < totalDays + offset; curDay++) {
+    var j = curDay % 7;
+    var i = (curDay - j) / 7;
+    if (j > 4) continue;
+
+    var left = bounds.left + daysSpacing * (i + 1) + i * this.size_;
+    left = n(left, 1);
+    var top = bounds.top + daysSpacing * (j + 1) + j * this.size_;
+    top = n(top, 1);
+    var right = n(left + this.size_, 1);
+    var bottom = n(top + this.size_, 1);
+
+    this.dayPath_
+      .moveTo(left, top)
+      .lineTo(right, top)
+      .lineTo(right, bottom)
+      .lineTo(left, bottom)
+      .lineTo(left, top)
+      .close();
+  }
+};
+
+
 /** @inheritDoc */
 anychart.calendarModule.Chart.prototype.drawContent = function (bounds) {
   if (this.isConsistent()) {
@@ -276,6 +321,7 @@ anychart.calendarModule.Chart.prototype.drawContent = function (bounds) {
   }
 
   this.drawDebugBorder(bounds);
+  this.drawDebugDays(bounds);
 
   this.calculate();
 
