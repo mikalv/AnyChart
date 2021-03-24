@@ -6,6 +6,7 @@ goog.require('anychart.utils');
  * @typedef {{
  *   cumulativeVolume: number,
  *   cumulativeTransactionsValue: number,
+ *   beginOfDay: number,
  *   dispose: Function
  * }}
  */
@@ -20,10 +21,13 @@ anychart.stockModule.math.vwap.initContext = function() {
   return {
     cumulativeVolume: 0,
     cumulativeTransactionsValue: 0,
+    beginOfDay: NaN,
     /**
      * @this {anychart.stockModule.math.vwap.Context}
      */
     'dispose': function() {
+      this.cumulativeVolume = 0;
+      this.cumulativeTransactionsValue = 0;
     }
   };
 };
@@ -37,6 +41,7 @@ anychart.stockModule.math.vwap.initContext = function() {
 anychart.stockModule.math.vwap.startFunction = function(context) {
   context.cumulativeVolume = 0;
   context.cumulativeTransactionsValue = 0;
+  context.beginOfDay = NaN;
 };
 
 
@@ -67,6 +72,17 @@ anychart.stockModule.math.vwap.calculate = function(context, high, low, close, v
  * @this {anychart.stockModule.math.vwap.Context}
  */
 anychart.stockModule.math.vwap.calculationFunction = function(row, context) {
+  // TODO: разобраться с группировкой и описать все в api
+  var currentTimestamp = row.getX();
+  if (isNaN(context.beginOfDay) || currentTimestamp - context.beginOfDay >= 1000 * 60 * 60 * 24) {
+    var curDateObj = new Date(currentTimestamp);
+    var curYear = curDateObj.getUTCFullYear();
+    var curMonth = curDateObj.getUTCMonth();
+    var curDay = curDateObj.getUTCDate();
+    context.beginOfDay = Date.UTC(curYear, curMonth, curDay, 0, 0, 0);
+    context.dispose();
+  }
+  // надо поискать как можно определить здесь текущую группировку
   var high = anychart.utils.toNumber(row.get('high'));
   var low = anychart.utils.toNumber(row.get('low'));
   var close = anychart.utils.toNumber(row.get('close'));
