@@ -2323,12 +2323,6 @@ anychart.graphModule.Chart.prototype.setupByJSON = function(config, opt_default)
   if ('labels' in config)
     this.labels().setup(config['labels']);
 
-  if ('layout' in config) {
-    this.layout().setup(config['layout']);
-    if (config['layout']['type'] == anychart.enums.LayoutType.FORCED) {
-      this.markStateConsistent(anychart.enums.Store.GRAPH, anychart.enums.State.LAYOUT);
-    }
-  }
   if ('group' in config) {
     var groups = config['groups'];
     for (var i = 0; i < groups.length; i++) {
@@ -2339,6 +2333,9 @@ anychart.graphModule.Chart.prototype.setupByJSON = function(config, opt_default)
 
   if ('interactivity' in config)
     this.interactivity().setup(config['interactivity']);
+
+  this.layout().setOption('type', 'fixed');
+  this.fitAll();
 };
 
 
