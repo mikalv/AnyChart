@@ -478,22 +478,25 @@ anychart.scales.ScatterBase.prototype.determineScaleMinMax = function() {
       // DVF-3900 fix
       // the value that we should subtract and plus should be less then exp number
       // we take minimum data range exponential notation
-      var exponentialNotation = min.toExponential(); // example "1e-6"
-      // we split it by '-' to get the exponential number
-      var splitArr = exponentialNotation.split('-');
-      if (splitArr.length == 1) {
-        splitArr = exponentialNotation.split('+');
-      }
-      // convert it to number
-      var currentExp = +splitArr[splitArr.length - 1];
-      // we increment it by 1, to make smaller, and calculate delta
-      d = +('1e-' + Math.max(currentExp + 1, 5));
+      // var exponentialNotation = min.toExponential(); // example "1e-6"
+
+      // const power = exponentialNotation.split('e')[1];
+      // const absPower = Math.abs(power);
+      
+      // // we increment it by 1, to make smaller, and calculate delta
+      // d = +('1e-' + Math.max(absPower + 1, 5));
+      
+      const exponentialNotation = (max-min).toExponential(); // example "1e-6"
+      const power = exponentialNotation.split('e-')[1];
+
+      d = +(`1e-${power}`);
     }
     if (cannotChangeMax) {
       min -= d * 2;
     } else if (cannotChangeMin) {
       max += d * 2;
     } else {
+      debugger;
       min -= d;
       max += d;
     }
@@ -504,6 +507,7 @@ anychart.scales.ScatterBase.prototype.determineScaleMinMax = function() {
   }
 
   tmp = this.applyGaps(min, max, !cannotChangeMin, !cannotChangeMax, this.stickToZeroFlag, true);
+  debugger;
   this.min = tmp.min;
   this.max = tmp.max;
   this.borderLog = tmp.borderLog || 0;
