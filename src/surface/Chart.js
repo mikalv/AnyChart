@@ -1,5 +1,7 @@
 //region --- Requiring and Providing
 goog.provide('anychart.surfaceModule.Chart');
+
+goog.require('acgraph.vector.Circle');
 goog.require('anychart.colorScalesModule.ui.ColorRange');
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.reporting');
@@ -357,19 +359,15 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
       valuesZ.push(z);
     }
 
-    valuesX = goog.array.filter(valuesX, this.filterUnique_);
-    valuesY = goog.array.filter(valuesY, this.filterUnique_);
-    valuesZ = goog.array.filter(valuesZ, this.filterUnique_);
-
-    this.valuesX_ = valuesX;
-    this.valuesY_ = valuesY;
-    this.valuesZ_ = valuesZ;
+    this.valuesX_ = goog.array.filter(valuesX, this.filterUnique_);
+    this.valuesY_ = goog.array.filter(valuesY, this.filterUnique_);
+    this.valuesZ_ = goog.array.filter(valuesZ, this.filterUnique_);
 
     var pointsCount = iterator.getRowsCount();
     if (pointsCount > 3000) {
       anychart.core.reporting.warning(anychart.enums.WarningCode.SURFACE_POOR_PERFORMANCE, null, [pointsCount], true);
     }
-    if ((valuesX.length * valuesY.length != pointsCount || pointsCount < 4) && pointsCount != 0) {
+    if ((this.valuesX_.length * this.valuesY_.length != pointsCount || pointsCount < 4) && pointsCount) {
       anychart.core.reporting.error(anychart.enums.ErrorCode.SURFACE_DATA_MALFORMED);
       this.problemWithData_ = true;
     } else {
@@ -405,9 +403,17 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
   if (xScale.needsAutoCalc()) xScale.startAutoCalc();
   if (yScale.needsAutoCalc()) yScale.startAutoCalc();
   if (zScale.needsAutoCalc()) zScale.startAutoCalc();
+
   xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), this.valuesX_);
   yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), this.valuesY_);
   zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), this.valuesZ_);
+
+  var markersValues = this.markers_.getUsedValues();
+
+  xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), markersValues.xValues);
+  yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), markersValues.yValues);
+  zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), markersValues.zValues);
+
   if (xScale.needsAutoCalc()) scalesChanged |= xScale.finishAutoCalc();
   if (yScale.needsAutoCalc()) scalesChanged |= yScale.finishAutoCalc();
   if (zScale.needsAutoCalc()) scalesChanged |= zScale.finishAutoCalc();
@@ -697,22 +703,22 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
   this.calculate();
 
   if (this.hasInvalidationState(anychart.ConsistencyState.SCALE_CHART_SCALES)) {
-    if (zAxis && !zAxis.scale()){
+    if (zAxis && !zAxis.scale()) {
       zAxis.scale(this.zScale());
     }
-    if (xAxis && !xAxis.scale()){
+    if (xAxis && !xAxis.scale()) {
       xAxis.scale(this.xScale());
     }
-    if (yAxis && !yAxis.scale()){
+    if (yAxis && !yAxis.scale()) {
       yAxis.scale(this.yScale());
     }
-    if (xGrid){
+    if (xGrid) {
       xGrid.scale(/** @type {anychart.scales.IXScale} */(this.xScale()));
     }
-    if (yGrid){
+    if (yGrid) {
       yGrid.scale(/** @type {anychart.scales.IXScale} */(this.yScale()));
     }
-    if (zGrid){
+    if (zGrid) {
       zGrid.scale(/** @type {anychart.scales.IXScale} */(this.zScale()));
     }
     this.markConsistent(anychart.ConsistencyState.SCALE_CHART_SCALES);
@@ -782,6 +788,7 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
     this.drawSurface(this.dataBounds_);
+    this.markers().draw(this.dataBounds_);
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
 
@@ -928,17 +935,32 @@ anychart.surfaceModule.Chart.prototype.drawSurface = function(bounds) {
       }
 
       iterator.select(x * this.valuesY_.length + y);
-      var originalP0 = [anychart.utils.toNumber(iterator.get('x')),
-            anychart.utils.toNumber(iterator.get('y')), anychart.utils.toNumber(iterator.get('z'))];
+      var originalP0 = [
+        anychart.utils.toNumber(iterator.get('x')),
+        anychart.utils.toNumber(iterator.get('y')),
+        anychart.utils.toNumber(iterator.get('z'))
+      ];
+
       iterator.select((x + 1) * this.valuesY_.length + y);
-      var originalP1 = [anychart.utils.toNumber(iterator.get('x')),
-            anychart.utils.toNumber(iterator.get('y')), anychart.utils.toNumber(iterator.get('z'))];
+      var originalP1 = [
+        anychart.utils.toNumber(iterator.get('x')),
+        anychart.utils.toNumber(iterator.get('y')),
+        anychart.utils.toNumber(iterator.get('z'))
+      ];
+
       iterator.select((x + 1) * this.valuesY_.length + y + 1);
-      var originalP2 = [anychart.utils.toNumber(iterator.get('x')),
-            anychart.utils.toNumber(iterator.get('y')), anychart.utils.toNumber(iterator.get('z'))];
+      var originalP2 = [
+        anychart.utils.toNumber(iterator.get('x')),
+        anychart.utils.toNumber(iterator.get('y')),
+        anychart.utils.toNumber(iterator.get('z'))
+      ];
+
       iterator.select(x * this.valuesY_.length + y + 1);
-      var originalP3 = [anychart.utils.toNumber(iterator.get('x')),
-            anychart.utils.toNumber(iterator.get('y')), anychart.utils.toNumber(iterator.get('z'))];
+      var originalP3 = [
+        anychart.utils.toNumber(iterator.get('x')),
+        anychart.utils.toNumber(iterator.get('y')),
+        anychart.utils.toNumber(iterator.get('z'))
+      ];
 
       //todo (I.Kurnoy) think about cropping faces along edges for better result
       var face = this.cropFaceByScales([originalP0, originalP1, originalP2, originalP3]);
@@ -1259,6 +1281,95 @@ anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
 };
 //endregion
 
+/**
+ *
+ * @return {Object}
+ */
+anychart.surfaceModule.Chart.prototype.markers = function() {
+  var chart = this;
+  return this.markers_ || (this.markers_ = {
+    used: [],
+    unused: [],
+
+    getUsedValues: function() {
+      var iterator = this.data_.getIterator();
+      var xValues = [];
+      var yValues = [];
+      var zValues = [];
+
+      while (iterator.advance()) {
+        xValues.push(iterator.get('x'));
+        yValues.push(iterator.get('y'));
+        zValues.push(iterator.get('z'));
+      }
+
+      return {
+        xValues: xValues,
+        yValues: yValues,
+        zValues: zValues
+      };
+    },
+
+    data: function(opt_value, opt_csvSettings) {
+      if (goog.isDef(opt_value)) {
+        if (this.rawData_ !== opt_value) {
+          this.rawData_ = opt_value;
+          if (this.data_)
+            this.data_.unlistenSignals(this.dataInvalidated_, this);
+          goog.dispose(this.data_);
+          goog.dispose(this.parentViewToDispose_);
+
+          if (anychart.utils.instanceOf(opt_value, anychart.data.View))
+            this.data_ = (/** @type {anychart.data.View} */ (opt_value)).derive();
+          else if (anychart.utils.instanceOf(opt_value, anychart.data.Set))
+            this.data_ = (/** @type {anychart.data.Set} */ (opt_value)).mapAs();
+          else
+            this.data_ = (this.parentViewToDispose_ = new anychart.data.Set(
+              (goog.isArray(opt_value) || goog.isString(opt_value)) ? opt_value : null, opt_csvSettings)).mapAs();
+        }
+        return this;
+      }
+      return this.data_;
+    },
+    draw: function() {
+      var iterator = this.data_.getIterator();
+
+      goog.array.forEach(this.unused, function(path) {
+        path.parent(null);
+      });
+
+      while (iterator.advance()) {
+        var x = iterator.get('x');
+        var y = iterator.get('y');
+        var z = iterator.get('z');
+
+        var point = anychart.surfaceModule.math.applyTransformationMatrixToPoint(chart.transformationMatrix_, chart.scalePoint([x, y, z]));
+
+        var coordinates = anychart.surfaceModule.math.pointToScreenCoordinates(point, chart.dataBounds_);
+
+        var path = this.unused.pop();
+        if (!path) {
+          path = new acgraph.vector.Circle();
+        }
+
+        this.used.push(path);
+
+        path.parent(chart.rootLayer_);
+        path.setPosition(
+          coordinates[1] - 2,
+          coordinates[2] - 2
+        );
+
+        path.radius(4)
+          .fill(['yellow', 'blue'], .5, .5, null, 1, 0.23, 0.81)
+          .stroke('none');
+      }
+      this.unused.push.apply(this.unused, this.used);
+      this.used.length = 0;
+    }
+  });
+};
+
 
 /**
  * Getter for chart which current point belongs to.
@@ -1534,6 +1645,7 @@ anychart.surfaceModule.Chart.prototype.getCsvColumns = function(dataHolder) {
   proto['getType'] = proto.getType;
 
   proto['palette'] = proto.palette;
+  proto['markers'] = proto.markers;
 
   //auto
   //proto['rotationZ'] = proto.rotationZ;
