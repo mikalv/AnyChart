@@ -586,7 +586,7 @@ goog.addDependency('../../../../src/sunburst/defaultTheme.js', ['anychart.sunbur
 goog.addDependency('../../../../src/sunburst/sunburst.module.js', ['anychart.sunburstModule.entry'], ['anychart.core.entry', 'anychart.sunburstModule.Chart'], {});
 goog.addDependency('../../../../src/surface/Axis.js', ['anychart.surfaceModule.Axis'], ['anychart.core.Axis', 'anychart.math.Rect', 'anychart.surfaceModule.AxisTicks', 'anychart.surfaceModule.math', 'goog.math.Coordinate'], {});
 goog.addDependency('../../../../src/surface/AxisTicks.js', ['anychart.surfaceModule.AxisTicks'], ['anychart.core.AxisTicks'], {});
-goog.addDependency('../../../../src/surface/Chart.js', ['anychart.surfaceModule.Chart'], ['acgraph.vector.Circle', 'anychart.colorScalesModule.ui.ColorRange', 'anychart.core.SeparateChart', 'anychart.core.reporting', 'anychart.data.Set', 'anychart.surfaceModule.Axis', 'anychart.surfaceModule.Grid', 'anychart.surfaceModule.math'], {});
+goog.addDependency('../../../../src/surface/Chart.js', ['anychart.surfaceModule.Chart'], ['acgraph.vector.Path', 'anychart.colorScalesModule.ui.ColorRange', 'anychart.core.SeparateChart', 'anychart.core.reporting', 'anychart.data.Set', 'anychart.surfaceModule.Axis', 'anychart.surfaceModule.Grid', 'anychart.surfaceModule.math'], {});
 goog.addDependency('../../../../src/surface/Grid.js', ['anychart.surfaceModule.Grid'], ['anychart.core.GridBase', 'anychart.surfaceModule.math'], {});
 goog.addDependency('../../../../src/surface/defaultTheme.js', ['anychart.surfaceModule.defaultTheme'], [], {});
 goog.addDependency('../../../../src/surface/math.js', ['anychart.surfaceModule.math'], [], {});

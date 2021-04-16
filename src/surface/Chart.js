@@ -1,7 +1,7 @@
 //region --- Requiring and Providing
 goog.provide('anychart.surfaceModule.Chart');
 
-goog.require('acgraph.vector.Circle');
+goog.require('acgraph.vector.Path');
 goog.require('anychart.colorScalesModule.ui.ColorRange');
 goog.require('anychart.core.SeparateChart');
 goog.require('anychart.core.reporting');
@@ -10,7 +10,6 @@ goog.require('anychart.surfaceModule.Axis');
 goog.require('anychart.surfaceModule.Grid');
 goog.require('anychart.surfaceModule.math');
 //endregion
-
 
 
 //region --- Constructor
@@ -91,9 +90,9 @@ anychart.surfaceModule.Chart = function(opt_data, opt_csvSettings) {
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
     ['rotationZ', anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.AXES_CHART_GRIDS |
-          anychart.ConsistencyState.AXES_CHART_AXES, anychart.Signal.NEEDS_REDRAW, null, rotationBeforeInvalidationHook],
+    anychart.ConsistencyState.AXES_CHART_AXES, anychart.Signal.NEEDS_REDRAW, null, rotationBeforeInvalidationHook],
     ['rotationY', anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.AXES_CHART_GRIDS |
-          anychart.ConsistencyState.AXES_CHART_AXES, anychart.Signal.NEEDS_REDRAW, null, rotationBeforeInvalidationHook],
+    anychart.ConsistencyState.AXES_CHART_AXES, anychart.Signal.NEEDS_REDRAW, null, rotationBeforeInvalidationHook],
     ['box', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW],
     ['stroke', anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW]
   ]);
@@ -138,15 +137,15 @@ anychart.surfaceModule.Chart.prototype.SUPPORTED_SIGNALS = anychart.core.Separat
  * @type {number}
  */
 anychart.surfaceModule.Chart.prototype.SUPPORTED_CONSISTENCY_STATES =
-    anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
-    anychart.ConsistencyState.APPEARANCE |
-    anychart.ConsistencyState.SURFACE_DATA |
-    anychart.ConsistencyState.SCALE_CHART_SCALES |
-    anychart.ConsistencyState.AXES_CHART_AXES |
-    anychart.ConsistencyState.CHART_LEGEND |
-    anychart.ConsistencyState.SURFACE_COLOR_RANGE |
-    anychart.ConsistencyState.AXES_CHART_GRIDS |
-    anychart.ConsistencyState.SURFACE_COLOR_SCALE;
+  anychart.core.SeparateChart.prototype.SUPPORTED_CONSISTENCY_STATES |
+  anychart.ConsistencyState.APPEARANCE |
+  anychart.ConsistencyState.SURFACE_DATA |
+  anychart.ConsistencyState.SCALE_CHART_SCALES |
+  anychart.ConsistencyState.AXES_CHART_AXES |
+  anychart.ConsistencyState.CHART_LEGEND |
+  anychart.ConsistencyState.SURFACE_COLOR_RANGE |
+  anychart.ConsistencyState.AXES_CHART_GRIDS |
+  anychart.ConsistencyState.SURFACE_COLOR_SCALE;
 
 
 /**
@@ -288,10 +287,10 @@ anychart.surfaceModule.Chart.prototype.data = function(opt_value, opt_csvSetting
         this.data_ = (/** @type {anychart.data.Set} */ (opt_value)).mapAs();
       else
         this.data_ = (this.parentViewToDispose_ = new anychart.data.Set(
-            (goog.isArray(opt_value) || goog.isString(opt_value)) ? opt_value : null, opt_csvSettings)).mapAs();
+          (goog.isArray(opt_value) || goog.isString(opt_value)) ? opt_value : null, opt_csvSettings)).mapAs();
       this.data_.listenSignals(this.dataInvalidated_, this);
       this.invalidate(anychart.ConsistencyState.SURFACE_DATA |
-              anychart.ConsistencyState.CHART_LEGEND, anychart.Signal.NEEDS_REDRAW);
+        anychart.ConsistencyState.CHART_LEGEND, anychart.Signal.NEEDS_REDRAW);
     }
     return this;
   }
@@ -306,7 +305,7 @@ anychart.surfaceModule.Chart.prototype.data = function(opt_value, opt_csvSetting
  */
 anychart.surfaceModule.Chart.prototype.dataInvalidated_ = function(event) {
   this.invalidate(anychart.ConsistencyState.CHART_LABELS | anychart.ConsistencyState.SURFACE_DATA,
-      anychart.Signal.NEEDS_REDRAW);
+    anychart.Signal.NEEDS_REDRAW);
 };
 
 
@@ -542,17 +541,17 @@ anychart.surfaceModule.Chart.prototype.colorScale = function(opt_value) {
     if (goog.isNull(opt_value) && this.colorScale_) {
       this.colorScale_ = null;
       this.invalidate(anychart.ConsistencyState.SURFACE_COLOR_SCALE | anychart.ConsistencyState.APPEARANCE,
-          anychart.Signal.NEEDS_REDRAW);
+        anychart.Signal.NEEDS_REDRAW);
     } else {
       var val = anychart.scales.Base.setupScale(this.colorScale_, opt_value, null,
-          anychart.scales.Base.ScaleTypes.COLOR_SCALES, null, this.colorScaleInvalidated_, this);
+        anychart.scales.Base.ScaleTypes.COLOR_SCALES, null, this.colorScaleInvalidated_, this);
       if (val) {
         var dispatch = this.colorScale_ == val;
         this.colorScale_ = val;
         this.colorScale_.resumeSignalsDispatching(dispatch);
         if (!dispatch) {
           this.invalidate(anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.SURFACE_COLOR_SCALE,
-              anychart.Signal.NEEDS_REDRAW);
+            anychart.Signal.NEEDS_REDRAW);
         }
       }
     }
@@ -570,7 +569,7 @@ anychart.surfaceModule.Chart.prototype.colorScale = function(opt_value) {
 anychart.surfaceModule.Chart.prototype.colorScaleInvalidated_ = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REAPPLICATION)) {
     this.invalidate(anychart.ConsistencyState.SURFACE_COLOR_SCALE | anychart.ConsistencyState.CHART_LEGEND,
-        anychart.Signal.NEEDS_REDRAW);
+      anychart.Signal.NEEDS_REDRAW);
   }
 };
 
@@ -604,7 +603,7 @@ anychart.surfaceModule.Chart.prototype.colorRange = function(opt_value) {
     this.colorRange_.container(this.rootElement);
     this.colorRange_.listenSignals(this.colorRangeInvalidated_, this);
     this.invalidate(anychart.ConsistencyState.SURFACE_COLOR_RANGE | anychart.ConsistencyState.BOUNDS,
-        anychart.Signal.NEEDS_REDRAW);
+      anychart.Signal.NEEDS_REDRAW);
   }
 
   if (goog.isDef(opt_value)) {
@@ -664,9 +663,9 @@ anychart.surfaceModule.Chart.prototype.handleMouseOverAndMove = function(event) 
     this.suspendSignalsDispatching();
     var pixelBounds = this.getPixelBounds();
     this['rotationY'](this.startSurfaceRotationY -
-        (this.startMouseRotationY - event['clientY']) / pixelBounds.height * 110);
+      (this.startMouseRotationY - event['clientY']) / pixelBounds.height * 110);
     this['rotationZ'](this.startSurfaceRotationZ +
-        (this.startMouseRotationX - event['clientX']) / pixelBounds.width * 110);
+      (this.startMouseRotationX - event['clientX']) / pixelBounds.width * 110);
     this.resumeSignalsDispatching(true);
   }
 };
@@ -680,7 +679,7 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
     return;
 
   this.prepareTransformationMatrix(/** @type {number} */(this.getOption('rotationZ')),
-      /** @type {number} */(this.getOption('rotationY')));
+    /** @type {number} */(this.getOption('rotationY')));
 
   var xGrid = this.getCreated('xGrid');
   var yGrid = this.getCreated('yGrid');
@@ -837,8 +836,8 @@ anychart.surfaceModule.Chart.prototype.prepareTransformationMatrix = function(ya
   var cosB = Math.cos(pitch);
 
   this.transformationMatrix_ = [cosA * cosB, -sinA * cosB, sinB,
-                                sinA, cosA, 0,
-                                -sinB * cosA, sinA * sinB, cosB];
+    sinA, cosA, 0,
+    -sinB * cosA, sinA * sinB, cosB];
 };
 
 
@@ -1093,9 +1092,9 @@ anychart.surfaceModule.Chart.prototype.drawBox = function(bounds) {
   var upperPlaneTransformed = [];
   for (i = 0; i < bottomPlane.length; i++) {
     bottomPlaneTransformed[i] = anychart.surfaceModule.math.applyTransformationMatrixToPoint(this.transformationMatrix_,
-        bottomPlane[i]);
+      bottomPlane[i]);
     upperPlaneTransformed[i] = anychart.surfaceModule.math.applyTransformationMatrixToPoint(this.transformationMatrix_,
-        upperPlane[i]);
+      upperPlane[i]);
   }
 
   var bottomFoundPoints = this.findPoints(bottomPlaneTransformed);
@@ -1122,9 +1121,9 @@ anychart.surfaceModule.Chart.prototype.drawBox = function(bounds) {
     // Bc if we draw them onto each other they look horrific.
     // This peace fixes x and y axes only.
     if ((xAxis && xAxis.enabled() && xAxis.fixedPosition() && i == bottomPlaneTransformed.length - 1) ||
-        (yAxis && yAxis.enabled() && yAxis.fixedPosition() && i == 0) ||
-        (xAxis && xAxis.enabled() && (xDif > yDif) && [currPoint, nextPoint].indexOf(bottomNearest) >= 0) ||
-        (yAxis && yAxis.enabled() && (yDif > xDif) && [currPoint, nextPoint].indexOf(bottomNearest) >= 0)) {
+      (yAxis && yAxis.enabled() && yAxis.fixedPosition() && i == 0) ||
+      (xAxis && xAxis.enabled() && (xDif > yDif) && [currPoint, nextPoint].indexOf(bottomNearest) >= 0) ||
+      (yAxis && yAxis.enabled() && (yDif > xDif) && [currPoint, nextPoint].indexOf(bottomNearest) >= 0)) {
       continue;
     }
     cagePoints.push([bottomPlaneTransformed[i], nextPoint]);
@@ -1140,7 +1139,7 @@ anychart.surfaceModule.Chart.prototype.drawBox = function(bounds) {
   for (i = 0; i < bottomPlaneTransformed.length; i++) {
     // This is same as above. Fixes overlapping with Z axis by not drawing edge of box.
     if (zAxis && zAxis.enabled() && ((zAxis.fixedPosition() && i == 0) ||
-        bottomPlaneTransformed[i] == bottomLeft)) {
+      bottomPlaneTransformed[i] == bottomLeft)) {
       continue;
     }
     cagePoints.push([bottomPlaneTransformed[i], upperPlaneTransformed[i]]);
@@ -1154,7 +1153,7 @@ anychart.surfaceModule.Chart.prototype.drawBox = function(bounds) {
     if (p0 == bottomNearest || p1 == bottomNearest || p0 == upperNearest || p1 == upperNearest)
       zIndex = 100; // zIndex hack, for lines going out of nearest point to the viewer
     this.drawLine(this.boxPaths_[i], anychart.surfaceModule.math.pointsToScreenCoordinates(cagePoints[i], bounds),
-                  zIndex, stroke);
+      zIndex, stroke);
   }
 };
 
@@ -1277,7 +1276,7 @@ anychart.surfaceModule.Chart.prototype.zGrid = function(opt_value) {
  */
 anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
   this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS | anychart.ConsistencyState.APPEARANCE,
-      anychart.Signal.NEEDS_REDRAW);
+    anychart.Signal.NEEDS_REDRAW);
 };
 //endregion
 
@@ -1287,87 +1286,226 @@ anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
  */
 anychart.surfaceModule.Chart.prototype.markers = function() {
   var chart = this;
-  return this.markers_ || (this.markers_ = {
-    used: [],
-    unused: [],
+  return this.markers_ || (this.markers_ = (function() {
+    var rv = {
+      used: [],
+      unused: [],
+      getUsedValues: function() {
+        var iterator = this.data_.getIterator();
+        var xValues = [];
+        var yValues = [];
+        var zValues = [];
 
-    getUsedValues: function() {
-      var iterator = this.data_.getIterator();
-      var xValues = [];
-      var yValues = [];
-      var zValues = [];
-
-      while (iterator.advance()) {
-        xValues.push(iterator.get('x'));
-        yValues.push(iterator.get('y'));
-        zValues.push(iterator.get('z'));
-      }
-
-      return {
-        xValues: xValues,
-        yValues: yValues,
-        zValues: zValues
-      };
-    },
-
-    data: function(opt_value, opt_csvSettings) {
-      if (goog.isDef(opt_value)) {
-        if (this.rawData_ !== opt_value) {
-          this.rawData_ = opt_value;
-          if (this.data_)
-            this.data_.unlistenSignals(this.dataInvalidated_, this);
-          goog.dispose(this.data_);
-          goog.dispose(this.parentViewToDispose_);
-
-          if (anychart.utils.instanceOf(opt_value, anychart.data.View))
-            this.data_ = (/** @type {anychart.data.View} */ (opt_value)).derive();
-          else if (anychart.utils.instanceOf(opt_value, anychart.data.Set))
-            this.data_ = (/** @type {anychart.data.Set} */ (opt_value)).mapAs();
-          else
-            this.data_ = (this.parentViewToDispose_ = new anychart.data.Set(
-              (goog.isArray(opt_value) || goog.isString(opt_value)) ? opt_value : null, opt_csvSettings)).mapAs();
-        }
-        return this;
-      }
-      return this.data_;
-    },
-    draw: function() {
-      var iterator = this.data_.getIterator();
-
-      goog.array.forEach(this.unused, function(path) {
-        path.parent(null);
-      });
-
-      while (iterator.advance()) {
-        var x = iterator.get('x');
-        var y = iterator.get('y');
-        var z = iterator.get('z');
-
-        var point = anychart.surfaceModule.math.applyTransformationMatrixToPoint(chart.transformationMatrix_, chart.scalePoint([x, y, z]));
-
-        var coordinates = anychart.surfaceModule.math.pointToScreenCoordinates(point, chart.dataBounds_);
-
-        var path = this.unused.pop();
-        if (!path) {
-          path = new acgraph.vector.Circle();
+        while (iterator.advance()) {
+          xValues.push(iterator.get('x'));
+          yValues.push(iterator.get('y'));
+          zValues.push(iterator.get('z'));
         }
 
-        this.used.push(path);
+        return {
+          xValues: xValues,
+          yValues: yValues,
+          zValues: zValues
+        };
+      },
 
-        path.parent(chart.rootLayer_);
-        path.setPosition(
-          coordinates[1] - 2,
-          coordinates[2] - 2
-        );
+      droplines: function() {
+        return this.droplines_ || (this.droplines_ = (function() {
+          var rv = {
+            markersController: this,
+            usedDropLinesPaths: [],
+            unusedDropLinesPaths: [],
+            clear: function() {
+              goog.array.forEach(this.unusedDropLinesPaths, function(path) {
+                path.clear();
+                path.parent(null);
+              });
+            },
+            enabled_: false,
+            enabled: function(opt_enabled) {
+              if (goog.isDef(opt_enabled)) {
+                this.enabled_ = opt_enabled;
+              }
+              return this.enabled_;
+            },
+            stroke: function(opt_stoke) {
+              if (goog.isDef(opt_stoke)) {
+                this.stroke_ = opt_stoke;
+              }
+              return this.stroke_ || (this.stroke_ = '#CCCCCC');
+            },
+            drawLine: function(path, from) {
+              var fromPoint = anychart.surfaceModule.math.pointToScreenCoordinates(
+                anychart.surfaceModule.math.applyTransformationMatrixToPoint(chart.transformationMatrix_, chart.scalePoint(from)),
+                chart.dataBounds_);
 
-        path.radius(4)
-          .fill(['yellow', 'blue'], .5, .5, null, 1, 0.23, 0.81)
-          .stroke('none');
+              var toPoint = anychart.surfaceModule.math.pointToScreenCoordinates(
+                anychart.surfaceModule.math.applyTransformationMatrixToPoint(chart.transformationMatrix_, chart.scalePoint([from[0], from[1], 0])),
+                chart.dataBounds_
+              );
+
+              path.moveTo(fromPoint[1], fromPoint[2]);
+              path.lineTo(toPoint[1], toPoint[2]);
+            },
+            draw: function(point) {
+              if (this.enabled()) {
+                var dlp = this.unusedDropLinesPaths.pop();
+                if (!dlp) {
+                  dlp = new acgraph.vector.Path();
+                }
+
+                this.usedDropLinesPaths.push(dlp);
+                dlp.stroke(this.stroke());
+                dlp.parent(chart.rootLayer_);
+
+                this.drawLine(dlp, point);
+                this.unusedDropLinesPaths.push.apply(this.unusedDropLinesPaths, this.usedDropLinesPaths);
+                this.usedDropLinesPaths.length = 0;
+              }
+            }
+          };
+          rv['enabled'] = rv.enabled;
+          rv['stroke'] = rv.stroke;
+          return rv;
+        })());
+      },
+      data: function(opt_value, opt_csvSettings) {
+        if (goog.isDef(opt_value)) {
+          if (this.rawData_ !== opt_value) {
+            this.rawData_ = opt_value;
+            if (this.data_)
+              this.data_.unlistenSignals(this.dataInvalidated_, this);
+            goog.dispose(this.data_);
+            goog.dispose(this.parentViewToDispose_);
+
+            if (anychart.utils.instanceOf(opt_value, anychart.data.View))
+              this.data_ = (/** @type {anychart.data.View} */ (opt_value)).derive();
+            else if (anychart.utils.instanceOf(opt_value, anychart.data.Set))
+              this.data_ = (/** @type {anychart.data.Set} */ (opt_value)).mapAs();
+            else
+              this.data_ = (this.parentViewToDispose_ = new anychart.data.Set(
+                (goog.isArray(opt_value) || goog.isString(opt_value)) ? opt_value : null, opt_csvSettings)).mapAs();
+          }
+          return this;
+        }
+        return this.data_;
+      },
+      colorScale: function(opt_value) {
+        if (goog.isDef(opt_value)) {
+          if (goog.isNull(opt_value) && this.colorScale_) {
+            this.colorScale_ = null;
+          } else {
+            var val = anychart.scales.Base.setupScale(this.colorScale_, opt_value, null,
+              anychart.scales.Base.ScaleTypes.COLOR_SCALES, null, function() {
+
+              }, this);
+            if (val) {
+              var dispatch = this.colorScale_ == val;
+              this.colorScale_ = val;
+              this.colorScale_.resumeSignalsDispatching(dispatch);
+              // if (!dispatch) {
+              //
+              // }
+            }
+          }
+          return this;
+        }
+        return this.colorScale_;
+      },
+      type: function(opt_type) {
+        if (goog.isDef(opt_type)) {
+          this.type_ = opt_type;
+        }
+        return this.type_ || 'circle';
+      },
+      drawer: function() {
+        return anychart.utils.getMarkerDrawer(this.type());
+      },
+      size: function(opt_size) {
+        if (goog.isDef(opt_size)) {
+          this.size_ = opt_size;
+        }
+        return this.size_ || 4;
+      },
+      draw: function() {
+        var iterator = this.data_.getIterator();
+        this.droplines().clear();
+        if (this.colorScale()) {
+          this.colorScale().startAutoCalc();
+          this.colorScale().extendDataRange.apply(this.colorScale_, this.getUsedValues().yValues);
+          this.colorScale().finishAutoCalc();
+        }
+        goog.array.forEach(this.unused, function(path) {
+          path.parent(null);
+        });
+
+        while (iterator.advance()) {
+          var x = iterator.get('x');
+          var y = iterator.get('y');
+          var z = iterator.get('z');
+
+          var point = anychart.surfaceModule.math.applyTransformationMatrixToPoint(chart.transformationMatrix_, chart.scalePoint([x, y, z]));
+
+          var coordinates = anychart.surfaceModule.math.pointToScreenCoordinates(point, chart.dataBounds_);
+
+          var path = this.unused.pop();
+          if (!path) {
+            path = new acgraph.vector.Path();
+          }
+
+          path.clear();
+          this.used.push(path);
+
+          var positionx = coordinates[1];
+          var positiony = coordinates[2];
+
+          this.drawer()(path, positionx, positiony, this.size(), this.size());
+
+          path.fill(this.resolveFill([x, y, z]));
+          path.stroke(this.resolveStroke([x, y, z]));
+
+          path.parent(chart.rootLayer_);
+          this.droplines().draw([x, y, z]);
+        }
+
+        this.unused.push.apply(this.unused, this.used);
+        this.used.length = 0;
+      },
+      resolveFill: function(point) {
+        if (this.colorScale()) {
+          return this.colorScale().valueToColor(point[2]);
+        }
+        return this.fill();
+      },
+      resolveStroke: function(point) {
+        if (this.colorScale()) {
+          return anychart.color.darken(this.colorScale().valueToColor(point[2]));
+        }
+        return this.stroke() || anychart.color.darken(this.resolveFill(point));
+      },
+      fill: function(opt_fill) {
+        if (opt_fill) {
+          this.fill_ = opt_fill;
+        }
+        return this.fill_ || '#99FFFF';
+      },
+      stroke: function(opt_stroke) {
+        if (opt_stroke) {
+          this.stroke_ = opt_stroke;
+        }
+        return this.stroke_;
       }
-      this.unused.push.apply(this.unused, this.used);
-      this.used.length = 0;
-    }
-  });
+    };
+
+    rv['size'] = rv.size;
+    rv['colorScale'] = rv.colorScale;
+    rv['type'] = rv.type;
+    rv['droplines'] = rv.droplines;
+    rv['stroke'] = rv.stroke;
+    rv['fill'] = rv.fill;
+
+    return rv;
+  })());
 };
 
 
@@ -1577,20 +1715,20 @@ anychart.surfaceModule.Chart.prototype.setupByJSON = function(config, opt_defaul
 /** @inheritDoc */
 anychart.surfaceModule.Chart.prototype.disposeInternal = function() {
   goog.disposeAll(
-      this.xAxis_,
-      this.yAxis_,
-      this.zAxis_,
-      this.paths_,
-      this.xGrid_,
-      this.yGrid_,
-      this.zGrid_,
-      this.boxPaths_,
-      this.surfaceLayer_,
-      this.rootLayer_,
-      this.colorRange_,
-      this.palette_,
-      this.data_,
-      this.parentViewToDispose_);
+    this.xAxis_,
+    this.yAxis_,
+    this.zAxis_,
+    this.paths_,
+    this.xGrid_,
+    this.yGrid_,
+    this.zGrid_,
+    this.boxPaths_,
+    this.surfaceLayer_,
+    this.rootLayer_,
+    this.colorRange_,
+    this.palette_,
+    this.data_,
+    this.parentViewToDispose_);
   this.boxPaths_.length = 0;
   this.paths_.length = 0;
   this.surfaceLayer_ = null;
@@ -1646,7 +1784,6 @@ anychart.surfaceModule.Chart.prototype.getCsvColumns = function(dataHolder) {
 
   proto['palette'] = proto.palette;
   proto['markers'] = proto.markers;
-
   //auto
   //proto['rotationZ'] = proto.rotationZ;
   //proto['rotationY'] = proto.rotationY;
