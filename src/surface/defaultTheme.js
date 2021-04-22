@@ -21,6 +21,14 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
         'useHtml': true
       }
     },
+    'markers': {
+      'enabled': false,
+      'type': 'circle',
+      'size': 4,
+      'droplines': {
+        'enabled': false,
+      }
+    },
     'xAxis': {
       'enabled': true,
       'orientation': 'right',
