@@ -7,31 +7,30 @@ goog.require('anychart.surfaceModule.markers.Marker');
 goog.require('anychart.surfaceModule.markers.droplines.Controller');
 
 /**
+ * Markers controller. Create, setup and resolves marker settings.
+ *
+ * @param {anychart.surfaceModule.Chart} chart - Surface instance.
  *
  * @extends {anychart.core.Base}
+ *
  * @constructor
  */
 anychart.surfaceModule.markers.Controller = function(chart) {
   anychart.surfaceModule.markers.Controller.base(this, 'constructor');
 
   this.chart_ = chart;
+
   this.layer_ = new acgraph.vector.Layer();
 
   this.markers_ = [];
   this.freeMarkers_ = [];
-
-  this.updateDrawer();
-
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
     ['enabled', 0, anychart.Signal.NEEDS_REAPPLICATION],
     ['size', 0, anychart.Signal.NEEDS_REAPPLICATION],
     ['fill', 0, anychart.Signal.NEEDS_REAPPLICATION],
     ['stroke', 0, anychart.Signal.NEEDS_REAPPLICATION],
-    ['type', 0, anychart.Signal.NEEDS_REAPPLICATION,
-      void 0,
-      this.updateDrawer,
-      this],
+    ['type', 0, anychart.Signal.NEEDS_REAPPLICATION]
   ]);
 };
 goog.inherits(anychart.surfaceModule.markers.Controller, anychart.core.Base);
@@ -54,10 +53,6 @@ anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS = (function() {
 })();
 anychart.core.settings.populate(anychart.surfaceModule.markers.Controller, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS);
 
-anychart.surfaceModule.markers.Controller.prototype.updateDrawer = function() {
-  this.drawer_ = anychart.utils.getMarkerDrawer(this.getOption('type'));
-};
-
 /**
  * Getter/Setter for markers droplines.
  *
@@ -78,13 +73,11 @@ anychart.surfaceModule.markers.Controller.prototype.droplines = function(opt_con
   return this.droplines_;
 };
 
-anychart.surfaceModule.markers.Controller.prototype.getMarker = function(data) {
-  var marker = this.freeMarkers_.pop();
-  if (!marker) {
-    marker = this.createMaker();
-  }
+anychart.surfaceModule.markers.Controller.prototype.getMarker = function(point) {
+  var marker = this.freeMarkers_.pop() || this.createMaker();
 
-  marker.data(data);
+  marker.data(point.data);
+  marker.index(point.index);
 
   return marker;
 };
@@ -125,11 +118,15 @@ anychart.surfaceModule.markers.Controller.prototype.getDataArray = function() {
       var x = iterator.get('x');
       var y = iterator.get('y');
       var z = iterator.get('z');
-      dataPoints.push([x, y, z]);
+      dataPoints.push({
+        index: iterator.getIndex(),
+        data: [x, y, z]
+      });
     }
 
-    return this.dataArray_ = goog.array.filter(dataPoints, function(points) {
-      return goog.array.every(points, goog.isNumber);
+    return this.dataArray_ = goog.array.filter(dataPoints, function(point) {
+      var data = point.data;
+      return goog.array.every(data, goog.isNumber);
     });
   }
 
@@ -177,17 +174,10 @@ anychart.surfaceModule.markers.Controller.prototype.draw = function(bounds) {
   this.freeMarkers();
 };
 
-/**
- * Return marker drawer.
- *
- * @return {Function}
- */
-anychart.surfaceModule.markers.Controller.prototype.getDrawer = function() {
-  return this.drawer_;
-};
+
 
 anychart.surfaceModule.markers.Controller.prototype.createMaker = function() {
-  var dl = this.droplines().createDropline();
+  var dl = this.droplines().getDropline();
 
   var marker = new anychart.surfaceModule.markers.Marker(this, dl);
 
@@ -221,20 +211,98 @@ anychart.surfaceModule.markers.Controller.prototype.data = function(opt_value, o
 };
 
 
-anychart.surfaceModule.markers.Controller.prototype.resolveFill = function(point) {
-  if (this.chart_.colorScale()) {
-    return this.chart_.colorScale().valueToColor(point[2]);
-  }
-  return this.getOption('fill');
+/**
+ * MouseMove event handler.
+ *
+ * @param {anychart.surfaceModule.markers.Marker} marker - Marker instance.
+ * @param {goog.events.BrowserEvent} event - Browser event.
+ */
+anychart.surfaceModule.markers.Controller.prototype.handleMouseMoveEvent = function(marker, event) {
+  this.tooltip().showFloat(event.clientX, event.clientY, this.getContextProviderForMarker(marker, this.getBaseContext(marker)));
 };
 
-anychart.surfaceModule.markers.Controller.prototype.resolveStroke = function(point) {
-  if (this.chart_.colorScale()) {
-    return anychart.color.darken(this.chart_.colorScale().valueToColor(point[2]));
-  }
-  return this.chart_.stroke() || anychart.color.darken(this.resolveFill(point));
+
+/**
+ * MouseOut event handler.
+ */
+anychart.surfaceModule.markers.Controller.prototype.handleMouseOutEvent = function() {
+  this.tooltip().hide();
 };
 
+
+/**
+ * Mouse events handler.
+ *
+ * @param {anychart.surfaceModule.markers.Marker} marker - Marker instance.
+ * @param {goog.events.BrowserEvent} event - Browser event.
+ */
+anychart.surfaceModule.markers.Controller.prototype.handleMarkerMouseEvents = function(marker, event) {
+  if (event.type === goog.events.EventType.MOUSEMOVE) {
+    this.handleMouseMoveEvent(marker, event);
+  } else if (event.type === goog.events.EventType.MOUSEOUT) {
+    this.handleMouseOutEvent();
+  }
+};
+
+//region --- Marker settings resolvers.
+
+
+/**
+ * Resolves option value.
+ *
+ * @param {anychart.surfaceModule.markers.Marker} marker - Marker instance.
+ * @param {string} option - Option name.
+ * @return {*}
+ */
+anychart.surfaceModule.markers.Controller.prototype.resolveOption = function(marker, option) {
+  var iterator = this.getIterator();
+
+  iterator.select(marker.index());
+
+  var dataOption = iterator.get(option);
+
+  return goog.isDef(dataOption) ? dataOption : this.getOption(option);
+};
+
+anychart.surfaceModule.markers.Controller.prototype.resolveColor = function(marker, type) {
+  var fill = this.resolveOption(marker, type);
+  if (goog.isFunction(fill)) {
+    var context = this.getContextProviderForMarker(marker, this.getExtendedContext(marker));
+    return fill.call(context, context);
+  }
+
+  return fill;
+};
+
+
+anychart.surfaceModule.markers.Controller.prototype.resolveFill = function(marker) {
+  return this.resolveColor(marker, 'fill');
+};
+
+anychart.surfaceModule.markers.Controller.prototype.resolveStroke = function(marker) {
+  return this.resolveColor(marker, 'stroke');
+};
+
+anychart.surfaceModule.markers.Controller.prototype.resolveType = function(marker) {
+  return this.resolveOption(marker, 'type');
+};
+
+anychart.surfaceModule.markers.Controller.prototype.resolveSize = function(marker) {
+  return this.resolveOption(marker, 'size');
+};
+
+
+/**
+ * Return marker drawer.
+ *
+ * @return {Function}
+ */
+anychart.surfaceModule.markers.Controller.prototype.resolveDrawer = function(marker) {
+  return anychart.utils.getMarkerDrawer(this.resolveType(marker));
+};
+
+
+//endregion
 anychart.surfaceModule.markers.Controller.prototype.getLayer = function() {
   return this.layer_;
 };
@@ -260,7 +328,121 @@ anychart.surfaceModule.markers.Controller.prototype.getUsedValues = function() {
 };
 
 
+/** @inheritDoc */
+anychart.surfaceModule.markers.Controller.prototype.disposeInternal = function() {
+  this.freeMarkers();
+
+  this.droplines().dispose();
+
+  goog.array.forEach(this.freeMarkers_, function(marker) {
+    marker.dispose();
+  });
+
+  this.markers_.length = 0;
+  this.freeMarkers_.length = 0;
+
+  this.layer_.remove();
+  this.layer_ = null;
+
+  this.chart_ = null;
+};
+
+
+/**
+ * Returns context that contains base point info.
+ *
+ * @param {anychart.surfaceModule.markers.Marker} marker
+ * @return {anychart.format.Context}
+ */
+anychart.surfaceModule.markers.Controller.prototype.getBaseContext = function(marker) {
+  var index = marker.index();
+
+  var context = {};
+
+  context['index'] = {
+    type: anychart.enums.TokenType.NUMBER,
+    value: index
+  };
+
+  context['x'] = {
+    type: anychart.enums.TokenType.NUMBER,
+    value: marker.data()[0]
+  };
+
+  context['y'] = {
+    type: anychart.enums.TokenType.NUMBER,
+    value: marker.data()[1]
+  };
+
+  context['z'] = {
+    type: anychart.enums.TokenType.NUMBER,
+    value: marker.data()[2]
+  };
+
+  return /**@type {anychart.format.Context}*/(context);
+};
+
+
+/**
+ * Returns context that contains base point info extended by color info.
+ *
+ * @param {anychart.surfaceModule.markers.Marker} marker
+ * @return {anychart.format.Context}
+ */
+anychart.surfaceModule.markers.Controller.prototype.getExtendedContext = function(marker) {
+  var context = this.getBaseContext(marker);
+
+  context['sourceColor'] = {
+    type: anychart.enums.TokenType.UNKNOWN,
+    value: this.chart_.resolveColor(marker.data()[2])
+  };
+
+  return context;
+};
+
+
+anychart.surfaceModule.markers.Controller.prototype.getContextProviderForMarker = function(marker, context) {
+  if (!this.contextProvider_) {
+    this.contextProvider_ = new anychart.format.Context();
+  }
+
+  var index = marker.index();
+  var iterator = this.getIterator();
+  iterator.select(index);
+
+  this.contextProvider_.dataSource(iterator);
+
+  return /** @type {anychart.format.Context} */(this.contextProvider_.propagate(context));
+};
+
+
+/**
+ * Getter/Setter for markers tooltip.
+ * 
+ * @param {Object=} opt_value - Configuration object.
+ *
+ * @return {anychart.surfaceModule.markers.Controller|anychart.core.ui.Tooltip}
+ */
+anychart.surfaceModule.markers.Controller.prototype.tooltip = function(opt_value) {
+  if (!this.tooltip_) {
+    this.tooltip_ = new anychart.core.ui.Tooltip(0);
+    this.tooltip_.dropThemes();
+    this.setupCreated('tooltip', this.tooltip_);
+    this.tooltip_.parent(/** @type {anychart.core.ui.Tooltip} */ (this.chart_.tooltip()));
+    this.tooltip_.chart(this.chart_);
+  }
+
+  if (goog.isDef(opt_value)) {
+    this.tooltip_.setup(opt_value);
+    return this;
+  }
+
+  return this.tooltip_;
+};
+
+
 (function() {
   var proto = anychart.surfaceModule.markers.Controller.prototype;
   proto['droplines'] = proto.droplines;
+  proto['tooltip'] = proto.tooltip;
 }());

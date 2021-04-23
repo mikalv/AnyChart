@@ -24,9 +24,23 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
     'markers': {
       'enabled': false,
       'type': 'circle',
-      'size': 4,
+      'size': 40,
+      'fill': anychart.core.defaultTheme.returnSourceColor,
+      'stroke': anychart.core.defaultTheme.returnDarkenSourceColor,
+      'tooltip': {
+        'enabled': true,
+        'format': 'x: {%x}\ny: {%y}\nz: {%z}',
+        'titleFormat': 'Marker: {%index}',
+        'separator': {
+          'enabled': false
+        },
+        'title': {
+          'enabled': false
+        }
+      },
       'droplines': {
         'enabled': false,
+        'stroke': '#696969'
       }
     },
     'xAxis': {

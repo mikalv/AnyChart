@@ -433,7 +433,7 @@ anychart.surfaceModule.Chart.prototype.createLegendItemsProvider = function(sour
 
   var legendItemsArray = [];
   for (var i = 0; i < ticks.length; i++) {
-    var color = this.colorScale() ? this.colorScale().valueToColor(ticks[i]) : this.palette().itemAt(0);
+    var color = this.resolveColor(ticks[i])
     var legendItemProvider = {
       'index': 0,
       'text': ticks[i],
@@ -584,8 +584,29 @@ anychart.surfaceModule.Chart.prototype.colorScaleInvalidated_ = function(event) 
 anychart.surfaceModule.Chart.prototype.onScalesSignal_ = function(event) {
   this.invalidate(anychart.ConsistencyState.APPEARANCE, anychart.Signal.NEEDS_REDRAW);
 };
+
+
+
 //endregion
 //region --- Color range
+/**
+ * Resolve color for passed value based on coloring type.
+ *
+ * @param {number} value
+ * @return {*}
+ */
+anychart.surfaceModule.Chart.prototype.resolveColor = function (value) {
+  var colorScale = this.colorScale();
+  var color;
+
+  if (colorScale) {
+    color = colorScale.valueToColor(value);
+  } else {
+    var palette = this.palette();
+    color = palette.itemAt(0);
+  }
+  return color;
+};
 
 
 /**
@@ -977,15 +998,7 @@ anychart.surfaceModule.Chart.prototype.drawSurface = function(bounds) {
 
       var pointsToRender = anychart.surfaceModule.math.pointsToScreenCoordinates([p0, p1, p2, p3], bounds);
 
-      var colorScale = this.colorScale();
-      var color;
-
-      if (colorScale) {
-        color = colorScale.valueToColor((originalP0[2] + originalP1[2] + originalP2[2] + originalP3[2]) / 4);
-      } else {
-        var palette = this.palette();
-        color = palette.itemAt(0);
-      }
+      var color = this.resolveColor((originalP0[2] + originalP1[2] + originalP2[2] + originalP3[2]) / 4)
 
       this.drawPolygon(path, pointsToRender, depth, color, stroke);
     }
