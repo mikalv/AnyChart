@@ -360,15 +360,19 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
       valuesZ.push(z);
     }
 
-    this.valuesX_ = goog.array.filter(valuesX, this.filterUnique_);
-    this.valuesY_ = goog.array.filter(valuesY, this.filterUnique_);
-    this.valuesZ_ = goog.array.filter(valuesZ, this.filterUnique_);
+    valuesX = goog.array.filter(valuesX, this.filterUnique_);
+    valuesY = goog.array.filter(valuesY, this.filterUnique_);
+    valuesZ = goog.array.filter(valuesZ, this.filterUnique_);
+
+    this.valuesX_ = valuesX;
+    this.valuesY_ = valuesY;
+    this.valuesZ_ = valuesZ;
 
     var pointsCount = iterator.getRowsCount();
     if (pointsCount > 3000) {
       anychart.core.reporting.warning(anychart.enums.WarningCode.SURFACE_POOR_PERFORMANCE, null, [pointsCount], true);
     }
-    if ((this.valuesX_.length * this.valuesY_.length != pointsCount || pointsCount < 4) && pointsCount) {
+    if ((valuesX.length * valuesY.length != pointsCount || pointsCount < 4) && pointsCount != 0) {
       anychart.core.reporting.error(anychart.enums.ErrorCode.SURFACE_DATA_MALFORMED);
       this.problemWithData_ = true;
     } else {
@@ -409,7 +413,7 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
   yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), this.valuesY_);
   zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), this.valuesZ_);
 
-  var markersValues = this.markers_.getUsedValues();
+  var markersValues = this.markers().getUsedValues();
 
   xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), markersValues.xValues);
   yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), markersValues.yValues);
@@ -433,7 +437,7 @@ anychart.surfaceModule.Chart.prototype.createLegendItemsProvider = function(sour
 
   var legendItemsArray = [];
   for (var i = 0; i < ticks.length; i++) {
-    var color = this.resolveColor(ticks[i])
+    var color = this.resolveColor(ticks[i]);
     var legendItemProvider = {
       'index': 0,
       'text': ticks[i],
@@ -593,7 +597,7 @@ anychart.surfaceModule.Chart.prototype.onScalesSignal_ = function(event) {
  * Resolve color for passed value based on coloring type.
  *
  * @param {number} value
- * @return {*}
+ * @return {string}
  */
 anychart.surfaceModule.Chart.prototype.resolveColor = function (value) {
   var colorScale = this.colorScale();
@@ -626,7 +630,7 @@ anychart.surfaceModule.Chart.prototype.colorRange = function(opt_value) {
     this.colorRange_.container(this.rootElement);
     this.colorRange_.listenSignals(this.colorRangeInvalidated_, this);
     this.invalidate(anychart.ConsistencyState.SURFACE_COLOR_RANGE | anychart.ConsistencyState.BOUNDS,
-      anychart.Signal.NEEDS_REDRAW);
+        anychart.Signal.NEEDS_REDRAW);
   }
 
   if (goog.isDef(opt_value)) {
@@ -686,9 +690,9 @@ anychart.surfaceModule.Chart.prototype.handleMouseOverAndMove = function(event) 
     this.suspendSignalsDispatching();
     var pixelBounds = this.getPixelBounds();
     this['rotationY'](this.startSurfaceRotationY -
-      (this.startMouseRotationY - event['clientY']) / pixelBounds.height * 110);
+        (this.startMouseRotationY - event['clientY']) / pixelBounds.height * 110);
     this['rotationZ'](this.startSurfaceRotationZ +
-      (this.startMouseRotationX - event['clientX']) / pixelBounds.width * 110);
+        (this.startMouseRotationX - event['clientX']) / pixelBounds.width * 110);
     this.resumeSignalsDispatching(true);
   }
 };
@@ -702,7 +706,7 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
     return;
 
   this.prepareTransformationMatrix(/** @type {number} */(this.getOption('rotationZ')),
-    /** @type {number} */(this.getOption('rotationY')));
+      /** @type {number} */(this.getOption('rotationY')));
 
   var xGrid = this.getCreated('xGrid');
   var yGrid = this.getCreated('yGrid');
@@ -728,22 +732,22 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
   this.calculate();
 
   if (this.hasInvalidationState(anychart.ConsistencyState.SCALE_CHART_SCALES)) {
-    if (zAxis && !zAxis.scale()) {
+    if (zAxis && !zAxis.scale()){
       zAxis.scale(this.zScale());
     }
-    if (xAxis && !xAxis.scale()) {
+    if (xAxis && !xAxis.scale()){
       xAxis.scale(this.xScale());
     }
-    if (yAxis && !yAxis.scale()) {
+    if (yAxis && !yAxis.scale()){
       yAxis.scale(this.yScale());
     }
-    if (xGrid) {
+    if (xGrid){
       xGrid.scale(/** @type {anychart.scales.IXScale} */(this.xScale()));
     }
-    if (yGrid) {
+    if (yGrid){
       yGrid.scale(/** @type {anychart.scales.IXScale} */(this.yScale()));
     }
-    if (zGrid) {
+    if (zGrid){
       zGrid.scale(/** @type {anychart.scales.IXScale} */(this.zScale()));
     }
     this.markConsistent(anychart.ConsistencyState.SCALE_CHART_SCALES);
@@ -998,7 +1002,7 @@ anychart.surfaceModule.Chart.prototype.drawSurface = function(bounds) {
 
       var pointsToRender = anychart.surfaceModule.math.pointsToScreenCoordinates([p0, p1, p2, p3], bounds);
 
-      var color = this.resolveColor((originalP0[2] + originalP1[2] + originalP2[2] + originalP3[2]) / 4)
+      var color = this.resolveColor((originalP0[2] + originalP1[2] + originalP2[2] + originalP3[2]) / 4);
 
       this.drawPolygon(path, pointsToRender, depth, color, stroke);
     }
@@ -1292,7 +1296,26 @@ anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
   this.invalidate(anychart.ConsistencyState.AXES_CHART_GRIDS | anychart.ConsistencyState.APPEARANCE,
       anychart.Signal.NEEDS_REDRAW);
 };
+
+
 //endregion
+// -- Region Markers.
+/**
+ * Markers invalidation handler.
+ *
+ * @param {anychart.SignalEvent} signal
+ * @private
+ */
+anychart.surfaceModule.Chart.prototype.markersInvalidated_ = function (signal) {
+  var consistency = anychart.ConsistencyState.APPEARANCE;
+
+  if (signal.hasSignal(anychart.Signal.DATA_CHANGED)) {
+    consistency |= anychart.ConsistencyState.SCALE_CHART_SCALES;
+  }
+
+  this.invalidate(consistency, anychart.Signal.NEEDS_REDRAW);
+};
+
 
 /**
  * Getter/Setter for chart markers.
@@ -1304,6 +1327,7 @@ anychart.surfaceModule.Chart.prototype.markers = function (opt_config) {
   if (!this.markers_) {
     this.markers_ = new anychart.surfaceModule.markers.Controller(this);
     this.setupCreated('markers', this.markers_);
+    this.markers_.listenSignals(this.markersInvalidated_, this);
   }
 
   if (goog.isDef(opt_config)) {
@@ -1315,6 +1339,7 @@ anychart.surfaceModule.Chart.prototype.markers = function (opt_config) {
 };
 
 
+//endregion
 /**
  * Getter for chart which current point belongs to.
  * @return {anychart.surfaceModule.Chart}

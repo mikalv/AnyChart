@@ -6,6 +6,8 @@ goog.require('anychart.surfaceModule.markers.droplines.Dropline');
 
 /**
  *
+ * @param {anychart.surfaceModule.markers.Controller} controller
+ *
  * @extends {anychart.core.Base}
  * @constructor
  */
@@ -55,7 +57,7 @@ anychart.core.settings.populate(anychart.surfaceModule.markers.droplines.Control
  * @return {acgraph.vector.Stroke}
  */
 anychart.surfaceModule.markers.droplines.Controller.prototype.resolveColor = function(dropline) {
-  return this.getOption('stroke');
+  return /**@type {acgraph.vector.Stroke}*/ (this.getOption('stroke'));
 };
 
 

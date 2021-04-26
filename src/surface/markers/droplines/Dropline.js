@@ -26,6 +26,11 @@ anychart.surfaceModule.markers.droplines.Dropline = function(controller) {
   this.path_ = new acgraph.vector.Path();
 };
 
+/**
+ * Draw line.
+ *
+ * @private
+ */
 anychart.surfaceModule.markers.droplines.Dropline.prototype.drawLine_ = function() {
   var coordinates = this.coordinates();
 
@@ -34,6 +39,10 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.drawLine_ = function
 };
 
 
+/**
+ * Apply dropline style.
+ * @private
+ */
 anychart.surfaceModule.markers.droplines.Dropline.prototype.applyStyle_ = function() {
   this.path_.stroke(this.controller_.resolveColor(this));
 };
@@ -80,4 +89,4 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.coordinates = functi
  */
 anychart.surfaceModule.markers.droplines.Dropline.prototype.getPath = function() {
   return this.path_;
-}
+};

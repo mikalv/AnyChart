@@ -24,7 +24,7 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
     'markers': {
       'enabled': false,
       'type': 'circle',
-      'size': 40,
+      'size': 4,
       'fill': anychart.core.defaultTheme.returnSourceColor,
       'stroke': anychart.core.defaultTheme.returnDarkenSourceColor,
       'tooltip': {
