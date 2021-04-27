@@ -26,6 +26,18 @@ anychart.surfaceModule.markers.droplines.Dropline = function(controller) {
   this.path_ = new acgraph.vector.Path();
 };
 
+
+//region --- Drawing
+/**
+ * Return path that used for dropline drawing.
+ *
+ * @return {acgraph.vector.Path}
+ */
+anychart.surfaceModule.markers.droplines.Dropline.prototype.getPath = function() {
+  return this.path_;
+};
+
+
 /**
  * Draw line.
  *
@@ -60,6 +72,8 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.draw = function() {
 };
 
 
+//endregion
+//region --- Setters/Getters
 /**
  * Getter/Setter for dropline coordinates.
  *
@@ -82,16 +96,8 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.coordinates = functi
 };
 
 
-/**
- * Return path that used for dropline drawing.
- *
- * @return {acgraph.vector.Path}
- */
-anychart.surfaceModule.markers.droplines.Dropline.prototype.getPath = function() {
-  return this.path_;
-};
-
-
+//endregion
+//region --- Dispose
 /**
  * Dispose created dom elements.
  */
@@ -99,3 +105,4 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.dispose = function()
   this.path_.remove();
   this.path_ = null;
 };
+//endregion

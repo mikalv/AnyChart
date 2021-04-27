@@ -55,7 +55,7 @@ anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS = (function() {
 })();
 anychart.core.settings.populate(anychart.surfaceModule.markers.Controller, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS);
 
-
+// region --- Droplines
 /**
  * Droplines invalidation handler.
  * @private
@@ -85,6 +85,17 @@ anychart.surfaceModule.markers.Controller.prototype.droplines = function(opt_con
 
   return this.droplines_;
 };
+// endregion
+//region --- Markers
+
+/**
+ * Instantiate marker.
+ * @return {anychart.surfaceModule.markers.Marker}
+ */
+anychart.surfaceModule.markers.Controller.prototype.createMaker = function() {
+  return new anychart.surfaceModule.markers.Marker(this, this.droplines().getDropline());
+};
+
 
 
 /**
@@ -166,8 +177,7 @@ anychart.surfaceModule.markers.Controller.prototype.getMarkers = function() {
   }
 
   var data = goog.array.filter(dataPoints, function(point) {
-    var data = point.data;
-    return goog.array.every(data, goog.isNumber);
+    return goog.array.every(point.data, goog.isNumber);
   });
 
   var markers = goog.array.map(data, this.getMarker, this);
@@ -189,6 +199,18 @@ anychart.surfaceModule.markers.Controller.prototype.clearMarkers = function() {
     marker.getLayer().remove();
   });
 };
+
+
+// endregion
+//region --- Drawing
+/**
+ * Return layer that used for markers drawing.
+ * @return {acgraph.vector.Layer}
+ */
+anychart.surfaceModule.markers.Controller.prototype.getLayer = function() {
+  return this.layer_;
+};
+
 
 /**
  * Draw all created markers.
@@ -221,16 +243,8 @@ anychart.surfaceModule.markers.Controller.prototype.draw = function(bounds) {
   }
 };
 
-
-/**
- * Instantiate marker.
- * @return {anychart.surfaceModule.markers.Marker}
- */
-anychart.surfaceModule.markers.Controller.prototype.createMaker = function() {
-  return new anychart.surfaceModule.markers.Marker(this, this.droplines().getDropline());
-};
-
-
+// endregion
+// region --- Data
 /**
  * Return iterator.
  * @return {!anychart.data.Iterator}
@@ -296,8 +310,8 @@ anychart.surfaceModule.markers.Controller.prototype.data = function(opt_value, o
 anychart.surfaceModule.markers.Controller.prototype.handleMouseMoveEvent = function(marker, event) {
   this.tooltip().showFloat(event.clientX, event.clientY, this.getContextProviderForMarker(marker, this.getBaseContext(marker)));
 };
-
-
+// endregion
+//region --- Events
 /**
  * MouseOut event handler.
  */
@@ -320,8 +334,8 @@ anychart.surfaceModule.markers.Controller.prototype.handleMarkerMouseEvents = fu
   }
 };
 
-
-//region --- Marker settings resolvers.
+//endregion
+//region --- Settings resolving
 /**
  * Resolves option value.
  *
@@ -406,12 +420,23 @@ anychart.surfaceModule.markers.Controller.prototype.resolveDrawer = function(mar
 
 
 //endregion
-/**
- * Return layer that used for markers drawing.
- * @return {acgraph.vector.Layer}
- */
-anychart.surfaceModule.markers.Controller.prototype.getLayer = function() {
-  return this.layer_;
+// region --- Overrides
+/** @inheritDoc */
+anychart.surfaceModule.markers.Controller.prototype.serialize = function() {
+  var rv = {};
+  anychart.core.settings.serialize(this, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS, rv);
+  rv['data'] = this.data().serialize();
+  return rv;
+};
+
+
+/** @inheritDoc */
+anychart.surfaceModule.markers.Controller.prototype.setupByJSON = function(json, opt_default) {
+  anychart.core.settings.deserialize(this, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS, json, opt_default);
+  var data = json['data'];
+  if (data) {
+    this.data(data);
+  }
 };
 
 
@@ -433,8 +458,8 @@ anychart.surfaceModule.markers.Controller.prototype.disposeInternal = function()
 
   this.chart_ = null;
 };
-
-
+// endregion
+//region --- Tooltip
 /**
  * Returns context that contains base marker info.
  *
@@ -535,7 +560,7 @@ anychart.surfaceModule.markers.Controller.prototype.tooltip = function(opt_value
   return this.tooltip_;
 };
 
-
+//endregion
 (function() {
   var proto = anychart.surfaceModule.markers.Controller.prototype;
   proto['droplines'] = proto.droplines;

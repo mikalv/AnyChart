@@ -45,6 +45,7 @@ anychart.surfaceModule.markers.droplines.Controller.PROPERTY_DESCRIPTORS = (func
 anychart.core.settings.populate(anychart.surfaceModule.markers.droplines.Controller, anychart.surfaceModule.markers.droplines.Controller.PROPERTY_DESCRIPTORS);
 
 
+// region --- Settings resolving
 /**
  * Resolve color for passed dropline.
  *
@@ -57,6 +58,8 @@ anychart.surfaceModule.markers.droplines.Controller.prototype.resolveColor = fun
 };
 
 
+//endregion
+// region --- Droplines
 /**
  * Setup dropline.
  *
@@ -81,3 +84,4 @@ anychart.surfaceModule.markers.droplines.Controller.prototype.setupDropline = fu
 anychart.surfaceModule.markers.droplines.Controller.prototype.getDropline = function() {
   return new anychart.surfaceModule.markers.droplines.Dropline(this);
 };
+// endregion

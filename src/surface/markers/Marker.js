@@ -26,20 +26,7 @@ anychart.surfaceModule.markers.Marker = function(controller, dropline) {
 };
 
 
-/**
- * Getter/Setter for markers coordinates.
- *
- * @param {Array.<number>=} opt_coordinates - Array with coordinates.
- * @return {Array.<number>}
- */
-anychart.surfaceModule.markers.Marker.prototype.coordinates = function(opt_coordinates) {
-  if (opt_coordinates) {
-    this.coordinates_ = opt_coordinates;
-  }
-  return this.coordinates_;
-};
-
-
+// region --- Drawing.
 /**
  * Draw marker shape.
  */
@@ -55,12 +42,22 @@ anychart.surfaceModule.markers.Marker.prototype.drawShape = function() {
   );
 };
 
+
 /**
  * Apply appearance settings to the marker path.
  */
 anychart.surfaceModule.markers.Marker.prototype.applyAppearance = function() {
   this.path_.fill(this.controller_.resolveFill(this));
   this.path_.stroke(this.controller_.resolveStroke(this));
+};
+
+
+/**
+ * Return layer that used for marker drawing.
+ * @return {acgraph.vector.Layer}
+ */
+anychart.surfaceModule.markers.Marker.prototype.getLayer = function() {
+  return this.layer_;
 };
 
 
@@ -75,27 +72,11 @@ anychart.surfaceModule.markers.Marker.prototype.draw = function() {
     this.drawShape();
     this.applyAppearance();
   }
-
-};
-
-/**
- * Return marker dropline.
- *
- * @return {anychart.surfaceModule.markers.droplines.Dropline}
- */
-anychart.surfaceModule.markers.Marker.prototype.getDropline = function() {
-  return this.dropline_;
-};
-
-/**
- * Return layer that used for marker drawing.
- * @return {acgraph.vector.Layer}
- */
-anychart.surfaceModule.markers.Marker.prototype.getLayer = function() {
-  return this.layer_;
 };
 
 
+//endregion
+//region --- Events
 /**
  * Mouse event handler.
  *
@@ -118,6 +99,18 @@ anychart.surfaceModule.markers.Marker.prototype.initEventHandlers_ = function() 
 };
 
 
+//endregion
+//region --- Setters/Getters
+/**
+ * Return marker dropline.
+ *
+ * @return {anychart.surfaceModule.markers.droplines.Dropline}
+ */
+anychart.surfaceModule.markers.Marker.prototype.getDropline = function() {
+  return this.dropline_;
+};
+
+
 /**
  * Marker data.
  *
@@ -129,6 +122,20 @@ anychart.surfaceModule.markers.Marker.prototype.data = function(opt_data) {
     this.data_ = opt_data;
   }
   return this.data_;
+};
+
+
+/**
+ * Getter/Setter for markers coordinates.
+ *
+ * @param {Array.<number>=} opt_coordinates - Array with coordinates.
+ * @return {Array.<number>}
+ */
+anychart.surfaceModule.markers.Marker.prototype.coordinates = function(opt_coordinates) {
+  if (opt_coordinates) {
+    this.coordinates_ = opt_coordinates;
+  }
+  return this.coordinates_;
 };
 
 
@@ -160,6 +167,8 @@ anychart.surfaceModule.markers.Marker.prototype.index = function(opt_index) {
 };
 
 
+//endregion
+//region --- Dispose
 /**
  * Dispose created dom elements.
  */
@@ -173,3 +182,4 @@ anychart.surfaceModule.markers.Marker.prototype.dispose = function() {
   this.getDropline().dispose();
   this.dropline_ = null;
 };
+//endregion

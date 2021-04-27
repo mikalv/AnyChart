@@ -1310,7 +1310,7 @@ anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
 
 
 //endregion
-// -- Region Markers.
+// --- Region Markers.
 /**
  * Markers invalidation handler.
  *
@@ -1342,7 +1342,7 @@ anychart.surfaceModule.Chart.prototype.markers = function(opt_config) {
   }
 
   if (goog.isDef(opt_config)) {
-    this.markers_.setupByJSON(opt_config, false);
+    this.markers_.setup(opt_config);
     return this;
   }
 
@@ -1507,6 +1507,8 @@ anychart.surfaceModule.Chart.prototype.serialize = function() {
   if (this.colorRange_)
     json['colorRange'] = this.colorRange().serialize();
 
+  json['markers'] = this.markers().serialize();
+
   anychart.core.settings.serialize(this, anychart.surfaceModule.Chart.OWN_DESCRIPTORS, json);
   return {'chart': json};
 };
@@ -1549,6 +1551,10 @@ anychart.surfaceModule.Chart.prototype.setupByJSON = function(config, opt_defaul
   if ('colorRange' in config)
     this.colorRange(config['colorRange']);
 
+  var markersConfig = config['markers'];
+  if (markersConfig) {
+    this.markers(markersConfig);
+  }
 
   anychart.core.settings.deserialize(this, anychart.surfaceModule.Chart.OWN_DESCRIPTORS, config, opt_default);
 };
