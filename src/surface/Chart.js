@@ -381,24 +381,6 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
     this.markConsistent(anychart.ConsistencyState.SURFACE_DATA);
   }
 
-
-  if (this.hasInvalidationState(anychart.ConsistencyState.SURFACE_COLOR_SCALE)) {
-    if (this.colorScale_) {
-      if (this.colorScale_.needsAutoCalc()) {
-        this.colorScale_.startAutoCalc();
-        this.colorScale_.extendDataRange.apply(this.colorScale_, this.valuesZ_);
-        this.colorScale_.finishAutoCalc();
-      } else {
-        this.colorScale_.resetDataRange();
-        this.colorScale_.extendDataRange.apply(this.colorScale_, this.valuesZ_);
-      }
-      if (anychart.utils.instanceOf(this.colorScale_, anychart.colorScalesModule.Ordinal))
-        this.colorScale_.ticks().markInvalid();
-      this.invalidate(anychart.ConsistencyState.APPEARANCE);
-      this.markConsistent(anychart.ConsistencyState.SURFACE_COLOR_SCALE);
-    }
-  }
-
   var xScale = this.xScale();
   var yScale = this.yScale();
   var zScale = this.zScale();
@@ -413,23 +395,48 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
   yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), this.valuesY_);
   zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), this.valuesZ_);
 
+  var markersXValues = [];
+  var markersYValues = [];
+  var markersZValues = [];
+
   if (this.markers().getOption('enabled') && this.markers().data()) {
     goog.array.forEach(this.markers().getMarkers(), function(marker) {
       var data = marker.data();
 
-      xScale.extendDataRange(data[0]);
-      yScale.extendDataRange(data[1]);
-      zScale.extendDataRange(data[2]);
+      markersXValues.push(data[0]);
+      markersYValues.push(data[1]);
+      markersZValues.push(data[2]);
     });
+
+    xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), markersXValues);
+    yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), markersYValues);
+    zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), markersZValues);
   }
 
   if (xScale.needsAutoCalc()) scalesChanged |= xScale.finishAutoCalc();
   if (yScale.needsAutoCalc()) scalesChanged |= yScale.finishAutoCalc();
   if (zScale.needsAutoCalc()) scalesChanged |= zScale.finishAutoCalc();
 
+  if (this.hasInvalidationState(anychart.ConsistencyState.SURFACE_COLOR_SCALE)) {
+    if (this.colorScale_) {
+      var zValues = goog.array.concat(this.valuesZ_, markersZValues);
+      if (this.colorScale_.needsAutoCalc()) {
+        this.colorScale_.startAutoCalc();
+        this.colorScale_.extendDataRange.apply(this.colorScale_, zValues);
+        this.colorScale_.finishAutoCalc();
+      } else {
+        this.colorScale_.resetDataRange();
+        this.colorScale_.extendDataRange.apply(this.colorScale_, zValues);
+      }
+      if (anychart.utils.instanceOf(this.colorScale_, anychart.colorScalesModule.Ordinal))
+        this.colorScale_.ticks().markInvalid();
+      this.invalidate(anychart.ConsistencyState.APPEARANCE);
+      this.markConsistent(anychart.ConsistencyState.SURFACE_COLOR_SCALE);
+    }
+  }
+
   if (scalesChanged)
     this.invalidate(anychart.ConsistencyState.SCALE_CHART_SCALES);
-
 };
 
 
