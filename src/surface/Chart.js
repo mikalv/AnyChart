@@ -413,13 +413,15 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
   yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), this.valuesY_);
   zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), this.valuesZ_);
 
-  goog.array.forEach(this.markers().getMarkers(), function(marker) {
-    var data = marker.data();
+  if (this.markers().getOption('enabled') && this.markers().data()) {
+    goog.array.forEach(this.markers().getMarkers(), function(marker) {
+      var data = marker.data();
 
-    xScale.extendDataRange(data[0]);
-    yScale.extendDataRange(data[1]);
-    zScale.extendDataRange(data[2]);
-  });
+      xScale.extendDataRange(data[0]);
+      yScale.extendDataRange(data[1]);
+      zScale.extendDataRange(data[2]);
+    });
+  }
 
   if (xScale.needsAutoCalc()) scalesChanged |= xScale.finishAutoCalc();
   if (yScale.needsAutoCalc()) scalesChanged |= yScale.finishAutoCalc();
@@ -734,22 +736,22 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
   this.calculate();
 
   if (this.hasInvalidationState(anychart.ConsistencyState.SCALE_CHART_SCALES)) {
-    if (zAxis && !zAxis.scale()){
+    if (zAxis && !zAxis.scale()) {
       zAxis.scale(this.zScale());
     }
-    if (xAxis && !xAxis.scale()){
+    if (xAxis && !xAxis.scale()) {
       xAxis.scale(this.xScale());
     }
-    if (yAxis && !yAxis.scale()){
+    if (yAxis && !yAxis.scale()) {
       yAxis.scale(this.yScale());
     }
-    if (xGrid){
+    if (xGrid) {
       xGrid.scale(/** @type {anychart.scales.IXScale} */(this.xScale()));
     }
-    if (yGrid){
+    if (yGrid) {
       yGrid.scale(/** @type {anychart.scales.IXScale} */(this.yScale()));
     }
-    if (zGrid){
+    if (zGrid) {
       zGrid.scale(/** @type {anychart.scales.IXScale} */(this.zScale()));
     }
     this.markConsistent(anychart.ConsistencyState.SCALE_CHART_SCALES);

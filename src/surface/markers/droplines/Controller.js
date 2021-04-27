@@ -6,21 +6,14 @@ goog.require('anychart.surfaceModule.markers.droplines.Dropline');
 
 /**
  * Droplines controller. Create droplines and resolve settings for it.
-
- * @param {anychart.surfaceModule.markers.Controller} controller Markers controller that used to resolve settings.
  *
  * @extends {anychart.core.Base}
  * @constructor
  */
-anychart.surfaceModule.markers.droplines.Controller = function(controller) {
+anychart.surfaceModule.markers.droplines.Controller = function() {
   anychart.surfaceModule.markers.droplines.Controller.base(this, 'constructor');
 
-  this.controller_ = controller;
-
   this.descriptorsMeta = {};
-
-  this.droplines_ = [];
-  this.freeDroplines_ = [];
 
   anychart.core.settings.createDescriptorsMeta(this.descriptorsMeta, [
     ['enabled', 0, anychart.Signal.ENABLED_STATE_CHANGED],
@@ -44,7 +37,7 @@ anychart.surfaceModule.markers.droplines.Controller.PROPERTY_DESCRIPTORS = (func
 
   anychart.core.settings.createDescriptors(map, [
     [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'enabled', anychart.core.settings.booleanNormalizer],
-    [anychart.enums.PropertyHandlerType.SINGLE_ARG, 'stroke', anychart.core.settings.strokeNormalizer]
+    [anychart.enums.PropertyHandlerType.MULTI_ARG, 'stroke', anychart.core.settings.strokeNormalizer]
   ]);
 
   return map;

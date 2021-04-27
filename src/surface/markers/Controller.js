@@ -64,7 +64,7 @@ anychart.core.settings.populate(anychart.surfaceModule.markers.Controller, anych
  */
 anychart.surfaceModule.markers.Controller.prototype.droplines = function(opt_config) {
   if (!this.droplines_) {
-    this.droplines_ = new anychart.surfaceModule.markers.droplines.Controller(this);
+    this.droplines_ = new anychart.surfaceModule.markers.droplines.Controller();
     this.setupCreated('droplines', this.droplines_);
   }
 
@@ -188,25 +188,27 @@ anychart.surfaceModule.markers.Controller.prototype.clearMarkers = function() {
 anychart.surfaceModule.markers.Controller.prototype.draw = function(bounds) {
   this.clearMarkers();
 
-  var markers = this.getMarkers();
+  if (this.getOption('enabled') && this.data_) {
+    var markers = this.getMarkers();
 
-  goog.array.forEach(markers, function(marker) {
-    this.setupMarker(marker, {
-      bounds: bounds
+    goog.array.forEach(markers, function(marker) {
+      this.setupMarker(marker, {
+        bounds: bounds
+      });
+    }, this);
+
+    markers.sort(function(a, b) {
+      return b.zIndex() - a.zIndex();
     });
-  }, this);
 
-  markers.sort(function(a, b) {
-    return b.zIndex() - a.zIndex();
-  });
+    goog.array.forEach(markers, function(marker) {
+      marker.draw();
+    });
 
-  goog.array.forEach(markers, function(marker) {
-    marker.draw();
-  });
-
-  goog.array.forEach(markers, function(marker) {
-    this.getLayer().addChild(/**@type {!acgraph.vector.Element}*/(marker.getLayer()));
-  }, this);
+    goog.array.forEach(markers, function(marker) {
+      this.getLayer().addChild(/**@type {!acgraph.vector.Element}*/(marker.getLayer()));
+    }, this);
+  }
 };
 
 
@@ -216,7 +218,6 @@ anychart.surfaceModule.markers.Controller.prototype.draw = function(bounds) {
  */
 anychart.surfaceModule.markers.Controller.prototype.createMaker = function() {
   return new anychart.surfaceModule.markers.Marker(this, this.droplines().getDropline());
-
 };
 
 
