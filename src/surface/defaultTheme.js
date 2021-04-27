@@ -40,7 +40,7 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       },
       'droplines': {
         'enabled': false,
-        'stroke': '#696969'
+        'stroke': '#CECECE'
       }
     },
     'xAxis': {

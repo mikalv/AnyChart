@@ -55,6 +55,7 @@ anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS = (function() {
 })();
 anychart.core.settings.populate(anychart.surfaceModule.markers.Controller, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS);
 
+
 /**
  * Getter/Setter for markers droplines.
  *
@@ -75,11 +76,12 @@ anychart.surfaceModule.markers.Controller.prototype.droplines = function(opt_con
   return this.droplines_;
 };
 
+
 /**
  * Return already created marker instance or create new.
  *
  * @param {{
- *   data:Array.<number>,
+ *   data: Array.<number>,
  *   index: number
  * }} point Marker data.
  *
@@ -95,6 +97,15 @@ anychart.surfaceModule.markers.Controller.prototype.getMarker = function(point) 
 };
 
 
+/**
+ * Setup marker.
+ *
+ * @param {anychart.surfaceModule.markers.Marker} marker
+ *
+ * @param {{
+ *   bounds: anychart.math.Rect
+ * }} config
+ */
 anychart.surfaceModule.markers.Controller.prototype.setupMarker = function(marker, config) {
   var bounds = config.bounds;
   var markerData = marker.data();
@@ -105,6 +116,7 @@ anychart.surfaceModule.markers.Controller.prototype.setupMarker = function(marke
   );
 
   var markerCoordinates = anychart.surfaceModule.math.pointToScreenCoordinates(markerPoint, bounds);
+
   marker.coordinates(markerCoordinates);
 
   var droplinePoint = anychart.surfaceModule.math.applyTransformationMatrixToPoint(
@@ -124,31 +136,29 @@ anychart.surfaceModule.markers.Controller.prototype.setupMarker = function(marke
   });
 };
 
-anychart.surfaceModule.markers.Controller.prototype.getDataArray = function() {
-  if (true) {
-    var iterator = this.data_.getIterator();
-    var dataPoints = [];
-    while (iterator.advance()) {
-      var x = iterator.get('x');
-      var y = iterator.get('y');
-      var z = iterator.get('z');
-      dataPoints.push({
-        index: iterator.getIndex(),
-        data: [x, y, z]
-      });
-    }
 
-    return this.dataArray_ = goog.array.filter(dataPoints, function(point) {
-      var data = point.data;
-      return goog.array.every(data, goog.isNumber);
+/**
+ * Return array of markers.
+ *
+ * @return {Array.<anychart.surfaceModule.markers.Marker>}
+ */
+anychart.surfaceModule.markers.Controller.prototype.getMarkers = function() {
+  var iterator = this.data_.getIterator();
+  var dataPoints = [];
+  while (iterator.advance()) {
+    var x = iterator.get('x');
+    var y = iterator.get('y');
+    var z = iterator.get('z');
+    dataPoints.push({
+      index: iterator.getIndex(),
+      data: [x, y, z]
     });
   }
 
-  return this.dataArray_;
-};
-
-anychart.surfaceModule.markers.Controller.prototype.getMarkers = function() {
-  var data = this.getDataArray();
+  var data = goog.array.filter(dataPoints, function(point) {
+    var data = point.data;
+    return goog.array.every(data, goog.isNumber);
+  });
 
   var markers = goog.array.map(data, this.getMarker, this);
 
@@ -157,7 +167,11 @@ anychart.surfaceModule.markers.Controller.prototype.getMarkers = function() {
   return markers;
 };
 
-anychart.surfaceModule.markers.Controller.prototype.freeMarkers = function() {
+
+/**
+ * Mark all markers as unused.
+ */
+anychart.surfaceModule.markers.Controller.prototype.clearMarkers = function() {
   this.freeMarkers_.push.apply(this.freeMarkers_, this.markers_);
   this.markers_.length = 0;
 
@@ -172,7 +186,7 @@ anychart.surfaceModule.markers.Controller.prototype.freeMarkers = function() {
  * @param {anychart.math.Rect} bounds - Parent bounds.
  */
 anychart.surfaceModule.markers.Controller.prototype.draw = function(bounds) {
-  this.freeMarkers();
+  this.clearMarkers();
 
   var markers = this.getMarkers();
 
@@ -191,7 +205,7 @@ anychart.surfaceModule.markers.Controller.prototype.draw = function(bounds) {
   });
 
   goog.array.forEach(markers, function(marker) {
-    this.getLayer().addChild(marker.getLayer());
+    this.getLayer().addChild(/**@type {!acgraph.vector.Element}*/(marker.getLayer()));
   }, this);
 };
 
@@ -201,11 +215,8 @@ anychart.surfaceModule.markers.Controller.prototype.draw = function(bounds) {
  * @return {anychart.surfaceModule.markers.Marker}
  */
 anychart.surfaceModule.markers.Controller.prototype.createMaker = function() {
-  var dl = this.droplines().getDropline();
+  return new anychart.surfaceModule.markers.Marker(this, this.droplines().getDropline());
 
-  var marker = new anychart.surfaceModule.markers.Marker(this, dl);
-
-  return marker;
 };
 
 
@@ -379,36 +390,16 @@ anychart.surfaceModule.markers.Controller.prototype.resolveDrawer = function(mar
 //endregion
 /**
  * Return layer that used for markers drawing.
- * @return {*}
+ * @return {acgraph.vector.Layer}
  */
 anychart.surfaceModule.markers.Controller.prototype.getLayer = function() {
   return this.layer_;
 };
 
 
-anychart.surfaceModule.markers.Controller.prototype.getUsedValues = function() {
-  var iterator = this.data_.getIterator();
-  var xValues = [];
-  var yValues = [];
-  var zValues = [];
-
-  while (iterator.advance()) {
-    xValues.push(iterator.get('x'));
-    yValues.push(iterator.get('y'));
-    zValues.push(iterator.get('z'));
-  }
-
-  return {
-    xValues: xValues,
-    yValues: yValues,
-    zValues: zValues
-  };
-};
-
-
 /** @inheritDoc */
 anychart.surfaceModule.markers.Controller.prototype.disposeInternal = function() {
-  this.freeMarkers();
+  this.clearMarkers();
 
   this.droplines().dispose();
 
@@ -427,7 +418,7 @@ anychart.surfaceModule.markers.Controller.prototype.disposeInternal = function()
 
 
 /**
- * Returns context that contains base point info.
+ * Returns context that contains base marker info.
  *
  * @param {anychart.surfaceModule.markers.Marker} marker
  * @return {anychart.format.Context}

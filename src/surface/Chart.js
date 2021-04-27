@@ -413,11 +413,13 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
   yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), this.valuesY_);
   zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), this.valuesZ_);
 
-  var markersValues = this.markers().getUsedValues();
+  goog.array.forEach(this.markers().getMarkers(), function(marker) {
+    var data = marker.data();
 
-  xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), markersValues.xValues);
-  yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), markersValues.yValues);
-  zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), markersValues.zValues);
+    xScale.extendDataRange(data[0]);
+    yScale.extendDataRange(data[1]);
+    zScale.extendDataRange(data[2]);
+  });
 
   if (xScale.needsAutoCalc()) scalesChanged |= xScale.finishAutoCalc();
   if (yScale.needsAutoCalc()) scalesChanged |= yScale.finishAutoCalc();
@@ -575,7 +577,7 @@ anychart.surfaceModule.Chart.prototype.colorScale = function(opt_value) {
 anychart.surfaceModule.Chart.prototype.colorScaleInvalidated_ = function(event) {
   if (event.hasSignal(anychart.Signal.NEEDS_RECALCULATION | anychart.Signal.NEEDS_REAPPLICATION)) {
     this.invalidate(anychart.ConsistencyState.SURFACE_COLOR_SCALE | anychart.ConsistencyState.CHART_LEGEND,
-      anychart.Signal.NEEDS_REDRAW);
+        anychart.Signal.NEEDS_REDRAW);
   }
 };
 
@@ -599,7 +601,7 @@ anychart.surfaceModule.Chart.prototype.onScalesSignal_ = function(event) {
  * @param {number} value
  * @return {string}
  */
-anychart.surfaceModule.Chart.prototype.resolveColor = function (value) {
+anychart.surfaceModule.Chart.prototype.resolveColor = function(value) {
   var colorScale = this.colorScale();
   var color;
 
@@ -723,7 +725,7 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
     this.surfaceLayer_.zIndex(anychart.surfaceModule.Chart.Z_INDEX_ROOT_LAYER);
 
     this.markersLayer_ = this.rootLayer_.layer();
-    this.markersLayer_.addChild(this.markers().getLayer());
+    this.markersLayer_.addChild(/**@type {!acgraph.vector.Element}*/(this.markers().getLayer()));
     // this line eliminates gaps between polygons, but makes surface look less antialiased
     // this.surfaceLayer_.attr('shape-rendering', 'crispEdges');
   }
@@ -872,7 +874,7 @@ anychart.surfaceModule.Chart.prototype.prepareTransformationMatrix = function(ya
 
 
 /**
- * Distance from camera to point defined by points.
+ * Distance from camera to point.
  *
  * @param {Array.<number>} point - Array with point coordinates.
  * @return {number} returns zIndex-like distance, where lower value means object is farther away.
@@ -1306,7 +1308,7 @@ anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
  * @param {anychart.SignalEvent} signal
  * @private
  */
-anychart.surfaceModule.Chart.prototype.markersInvalidated_ = function (signal) {
+anychart.surfaceModule.Chart.prototype.markersInvalidated_ = function(signal) {
   var consistency = anychart.ConsistencyState.APPEARANCE;
 
   if (signal.hasSignal(anychart.Signal.DATA_CHANGED)) {
@@ -1323,7 +1325,7 @@ anychart.surfaceModule.Chart.prototype.markersInvalidated_ = function (signal) {
  * @param {Object=} opt_config
  * @return {anychart.surfaceModule.Chart|anychart.surfaceModule.markers.Controller}
  */
-anychart.surfaceModule.Chart.prototype.markers = function (opt_config) {
+anychart.surfaceModule.Chart.prototype.markers = function(opt_config) {
   if (!this.markers_) {
     this.markers_ = new anychart.surfaceModule.markers.Controller(this);
     this.setupCreated('markers', this.markers_);

@@ -5,8 +5,9 @@ goog.require('anychart.surfaceModule.markers.droplines.Dropline');
 
 
 /**
- *
- * @param {anychart.surfaceModule.markers.Controller} controller
+ * Droplines controller. Create droplines and resolve settings for it.
+
+ * @param {anychart.surfaceModule.markers.Controller} controller Markers controller that used to resolve settings.
  *
  * @extends {anychart.core.Base}
  * @constructor
@@ -28,12 +29,14 @@ anychart.surfaceModule.markers.droplines.Controller = function(controller) {
 };
 goog.inherits(anychart.surfaceModule.markers.droplines.Controller, anychart.core.Base);
 
+
 /**
  * @type {number}
  */
 anychart.surfaceModule.markers.droplines.Controller.prototype.SUPPORTED_SIGNALS =
   anychart.Signal.ENABLED_STATE_CHANGED |
   anychart.Signal.NEEDS_REDRAW_APPEARANCE;
+
 
 anychart.surfaceModule.markers.droplines.Controller.PROPERTY_DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
@@ -61,20 +64,27 @@ anychart.surfaceModule.markers.droplines.Controller.prototype.resolveColor = fun
 };
 
 
+/**
+ * Setup dropline.
+ *
+ * @param {anychart.surfaceModule.markers.droplines.Dropline} dropline
+ * @param {{
+ *   coordinates: {
+ *     from: Array.<number>,
+ *     to: Array.<number>
+ *   }
+ * }} config
+ */
 anychart.surfaceModule.markers.droplines.Controller.prototype.setupDropline = function(dropline, config) {
   dropline.coordinates(config.coordinates);
 };
 
 
-anychart.surfaceModule.markers.droplines.Controller.prototype.createDropline_ = function() {
-  return new anychart.surfaceModule.markers.droplines.Dropline(this);
-};
-
-
+/**
+ * Instantiate dropline.
+ *
+ * @return {anychart.surfaceModule.markers.droplines.Dropline}
+ */
 anychart.surfaceModule.markers.droplines.Controller.prototype.getDropline = function() {
-  var dropline = this.freeDroplines_.pop() || this.createDropline_();
-
-  this.droplines_.push(dropline);
-
-  return dropline;
+  return new anychart.surfaceModule.markers.droplines.Dropline(this);
 };

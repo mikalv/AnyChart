@@ -5,7 +5,7 @@ goog.require('acgraph.vector.Path');
 
 
 /**
- *
+ * Drawable marker.
  *
  * @param {anychart.surfaceModule.markers.Controller} controller
  * @param {anychart.surfaceModule.markers.droplines.Dropline} dropline
@@ -19,7 +19,7 @@ anychart.surfaceModule.markers.Marker = function(controller, dropline) {
   this.layer_ = new acgraph.vector.Layer();
   this.path_ = new acgraph.vector.Path();
 
-  this.layer_.addChild(this.dropline_.getPath());
+  this.layer_.addChild(/**@type {!acgraph.vector.Element}*/(this.dropline_.getPath()));
   this.layer_.addChild(this.path_);
 
   this.initEventHandlers_();
@@ -78,12 +78,17 @@ anychart.surfaceModule.markers.Marker.prototype.draw = function() {
 
 };
 
+/**
+ * Return marker dropline.
+ *
+ * @return {anychart.surfaceModule.markers.droplines.Dropline}
+ */
 anychart.surfaceModule.markers.Marker.prototype.getDropline = function() {
   return this.dropline_;
 };
 
 /**
- *
+ * Return layer that used for marker drawing.
  * @return {acgraph.vector.Layer}
  */
 anychart.surfaceModule.markers.Marker.prototype.getLayer = function() {
@@ -164,4 +169,7 @@ anychart.surfaceModule.markers.Marker.prototype.dispose = function() {
 
   this.layer_ = null;
   this.path_ = null;
+
+  this.getDropline().dispose();
+  this.dropline_ = null;
 };

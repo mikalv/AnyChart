@@ -90,3 +90,12 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.coordinates = functi
 anychart.surfaceModule.markers.droplines.Dropline.prototype.getPath = function() {
   return this.path_;
 };
+
+
+/**
+ * Dispose created dom elements.
+ */
+anychart.surfaceModule.markers.droplines.Dropline.prototype.dispose = function() {
+  this.path_.remove();
+  this.path_ = null;
+};
