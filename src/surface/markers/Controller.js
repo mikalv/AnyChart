@@ -264,13 +264,20 @@ anychart.surfaceModule.markers.Controller.prototype.data = function(opt_value, o
       goog.dispose(this.data_);
       goog.dispose(this.parentViewToDispose_);
 
+      // Override default mapping because of 'size' data field.
+      var mapping = {
+        'x': [0, 'x'],
+        'y': [1, 'y'],
+        'z': [2, 'z']
+      };
+
       if (anychart.utils.instanceOf(opt_value, anychart.data.View))
         this.data_ = (/** @type {anychart.data.View} */ (opt_value)).derive();
       else if (anychart.utils.instanceOf(opt_value, anychart.data.Set))
-        this.data_ = (/** @type {anychart.data.Set} */ (opt_value)).mapAs();
+        this.data_ = (/** @type {anychart.data.Set} */ (opt_value)).mapAs(mapping);
       else
         this.data_ = (this.parentViewToDispose_ = new anychart.data.Set(
-          (goog.isArray(opt_value) || goog.isString(opt_value)) ? opt_value : null, opt_csvSettings)).mapAs();
+          (goog.isArray(opt_value) || goog.isString(opt_value)) ? opt_value : null, opt_csvSettings)).mapAs(mapping);
       this.data_.listenSignals(this.dataInvalidated_, this);
       this.dataInvalidated_();
     }
