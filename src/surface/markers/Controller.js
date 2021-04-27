@@ -57,6 +57,15 @@ anychart.core.settings.populate(anychart.surfaceModule.markers.Controller, anych
 
 
 /**
+ * Droplines invalidation handler.
+ * @private
+ */
+anychart.surfaceModule.markers.Controller.prototype.invalidateDroplines_ = function() {
+  this.dispatchSignal(anychart.Signal.NEEDS_REDRAW);
+};
+
+
+/**
  * Getter/Setter for markers droplines.
  *
  * @param {Object=} opt_config
@@ -66,6 +75,7 @@ anychart.surfaceModule.markers.Controller.prototype.droplines = function(opt_con
   if (!this.droplines_) {
     this.droplines_ = new anychart.surfaceModule.markers.droplines.Controller();
     this.setupCreated('droplines', this.droplines_);
+    this.droplines_.listenSignals(this.invalidateDroplines_, this);
   }
 
   if (goog.isDef(opt_config)) {
