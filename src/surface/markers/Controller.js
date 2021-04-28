@@ -22,8 +22,6 @@ anychart.surfaceModule.markers.Controller = function(chart) {
 
   this.chart_ = chart;
 
-  this.layer_ = new acgraph.vector.Layer();
-
   this.markers_ = [];
   this.freeMarkers_ = [];
 
@@ -79,15 +77,16 @@ anychart.surfaceModule.markers.Controller.prototype.droplines = function(opt_con
   }
 
   if (goog.isDef(opt_config)) {
-    this.droplines_.setupByJSON(opt_config, false);
+    this.droplines_.setup(opt_config);
     return this;
   }
 
   return this.droplines_;
 };
+
+
 // endregion
 //region --- Markers
-
 /**
  * Instantiate marker.
  * @return {anychart.surfaceModule.markers.Marker}
@@ -95,7 +94,6 @@ anychart.surfaceModule.markers.Controller.prototype.droplines = function(opt_con
 anychart.surfaceModule.markers.Controller.prototype.createMaker = function() {
   return new anychart.surfaceModule.markers.Marker(this, this.droplines().getDropline());
 };
-
 
 
 /**
@@ -204,11 +202,15 @@ anychart.surfaceModule.markers.Controller.prototype.clearMarkers = function() {
 // endregion
 //region --- Drawing
 /**
- * Return layer that used for markers drawing.
+ * Return container that used for markers drawing.
+ * @param {acgraph.vector.Layer=} opt_container
  * @return {acgraph.vector.Layer}
  */
-anychart.surfaceModule.markers.Controller.prototype.getLayer = function() {
-  return this.layer_;
+anychart.surfaceModule.markers.Controller.prototype.container = function(opt_container) {
+  if (opt_container) {
+    this.container_ = opt_container;
+  }
+  return this.container_;
 };
 
 
@@ -238,7 +240,7 @@ anychart.surfaceModule.markers.Controller.prototype.draw = function(bounds) {
     });
 
     goog.array.forEach(markers, function(marker) {
-      this.getLayer().addChild(/**@type {!acgraph.vector.Element}*/(marker.getLayer()));
+      this.container().addChild(/**@type {!acgraph.vector.Element}*/(marker.getLayer()));
     }, this);
   }
 };
@@ -310,6 +312,8 @@ anychart.surfaceModule.markers.Controller.prototype.data = function(opt_value, o
 anychart.surfaceModule.markers.Controller.prototype.handleMouseMoveEvent = function(marker, event) {
   this.tooltip().showFloat(event.clientX, event.clientY, this.getContextProviderForMarker(marker, this.getBaseContext(marker)));
 };
+
+
 // endregion
 //region --- Events
 /**
@@ -333,6 +337,7 @@ anychart.surfaceModule.markers.Controller.prototype.handleMarkerMouseEvents = fu
     this.handleMouseOutEvent();
   }
 };
+
 
 //endregion
 //region --- Settings resolving
@@ -453,11 +458,13 @@ anychart.surfaceModule.markers.Controller.prototype.disposeInternal = function()
   this.markers_.length = 0;
   this.freeMarkers_.length = 0;
 
-  this.layer_.remove();
-  this.layer_ = null;
+  this.container_.remove();
+  this.container_ = null;
 
   this.chart_ = null;
 };
+
+
 // endregion
 //region --- Tooltip
 /**
@@ -559,6 +566,7 @@ anychart.surfaceModule.markers.Controller.prototype.tooltip = function(opt_value
 
   return this.tooltip_;
 };
+
 
 //endregion
 (function() {

@@ -84,4 +84,20 @@ anychart.surfaceModule.markers.droplines.Controller.prototype.setupDropline = fu
 anychart.surfaceModule.markers.droplines.Controller.prototype.getDropline = function() {
   return new anychart.surfaceModule.markers.droplines.Dropline(this);
 };
+
+
+// endregion
+// region --- Serialize/Deserialize
+/** @inheritDoc */
+anychart.surfaceModule.markers.droplines.Controller.prototype.serialize = function() {
+  var rv = {};
+  anychart.core.settings.serialize(this, anychart.surfaceModule.markers.droplines.Controller.PROPERTY_DESCRIPTORS, rv);
+  return rv;
+};
+
+
+/** @inheritDoc */
+anychart.surfaceModule.markers.droplines.Controller.prototype.setupByJSON = function(json, opt_default) {
+  anychart.core.settings.deserialize(this, anychart.surfaceModule.markers.droplines.Controller.PROPERTY_DESCRIPTORS, json, opt_default);
+};
 // endregion

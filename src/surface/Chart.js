@@ -733,8 +733,8 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
     this.surfaceLayer_ = this.rootLayer_.layer();
     this.surfaceLayer_.zIndex(anychart.surfaceModule.Chart.Z_INDEX_ROOT_LAYER);
 
-    this.markersLayer_ = this.rootLayer_.layer();
-    this.markersLayer_.addChild(/**@type {!acgraph.vector.Element}*/(this.markers().getLayer()));
+    this.markersContainer_ = this.rootLayer_.layer();
+    this.markers().container(this.markersContainer_);
     // this line eliminates gaps between polygons, but makes surface look less antialiased
     // this.surfaceLayer_.attr('shape-rendering', 'crispEdges');
   }

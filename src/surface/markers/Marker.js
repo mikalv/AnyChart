@@ -16,11 +16,11 @@ anychart.surfaceModule.markers.Marker = function(controller, dropline) {
   this.controller_ = controller;
   this.dropline_ = dropline;
 
-  this.layer_ = new acgraph.vector.Layer();
+  this.container_ = new acgraph.vector.Layer();
   this.path_ = new acgraph.vector.Path();
 
-  this.layer_.addChild(/**@type {!acgraph.vector.Element}*/(this.dropline_.getPath()));
-  this.layer_.addChild(this.path_);
+  this.container_.addChild(/**@type {!acgraph.vector.Element}*/(this.dropline_.getPath()));
+  this.container_.addChild(this.path_);
 
   this.initEventHandlers_();
 };
@@ -53,11 +53,11 @@ anychart.surfaceModule.markers.Marker.prototype.applyAppearance = function() {
 
 
 /**
- * Return layer that used for marker drawing.
+ * Return container that used for marker drawing.
  * @return {acgraph.vector.Layer}
  */
 anychart.surfaceModule.markers.Marker.prototype.getLayer = function() {
-  return this.layer_;
+  return this.container_;
 };
 
 
@@ -173,10 +173,10 @@ anychart.surfaceModule.markers.Marker.prototype.index = function(opt_index) {
  * Dispose created dom elements.
  */
 anychart.surfaceModule.markers.Marker.prototype.dispose = function() {
-  this.layer_.remove();
+  this.container_.remove();
   this.path_.remove();
 
-  this.layer_ = null;
+  this.container_ = null;
   this.path_ = null;
 
   this.getDropline().dispose();
