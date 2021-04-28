@@ -430,7 +430,12 @@ anychart.surfaceModule.markers.Controller.prototype.resolveDrawer = function(mar
 anychart.surfaceModule.markers.Controller.prototype.serialize = function() {
   var rv = {};
   anychart.core.settings.serialize(this, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS, rv);
-  rv['data'] = this.data().serialize();
+
+  var data = this.data();
+  if (data) {
+    rv['data'] = data.serialize();
+  }
+
   return rv;
 };
 
