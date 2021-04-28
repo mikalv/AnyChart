@@ -391,10 +391,6 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
   if (yScale.needsAutoCalc()) yScale.startAutoCalc();
   if (zScale.needsAutoCalc()) zScale.startAutoCalc();
 
-  xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), this.valuesX_);
-  yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), this.valuesY_);
-  zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), this.valuesZ_);
-
   var markersXValues = [];
   var markersYValues = [];
   var markersZValues = [];
@@ -407,11 +403,11 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
       markersYValues.push(data[1]);
       markersZValues.push(data[2]);
     });
-
-    xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), markersXValues);
-    yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), markersYValues);
-    zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), markersZValues);
   }
+
+  xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), goog.array.concat(this.valuesX_, markersXValues));
+  yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), goog.array.concat(this.valuesY_, markersYValues));
+  zScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(zScale), goog.array.concat(this.valuesZ_, markersZValues));
 
   if (xScale.needsAutoCalc()) scalesChanged |= xScale.finishAutoCalc();
   if (yScale.needsAutoCalc()) scalesChanged |= yScale.finishAutoCalc();
@@ -1318,11 +1314,15 @@ anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
  * @private
  */
 anychart.surfaceModule.Chart.prototype.markersInvalidated_ = function(signal) {
-  var consistency = anychart.ConsistencyState.APPEARANCE;
+  var consistency = anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.AXES_CHART_GRIDS;
 
   if (signal.hasSignal(anychart.Signal.DATA_CHANGED)) {
     consistency |= anychart.ConsistencyState.SCALE_CHART_SCALES;
   }
+
+  this.xGrid().invalidate(this.xGrid().SUPPORTED_CONSISTENCY_STATES);
+  this.yGrid().invalidate(this.yGrid().SUPPORTED_CONSISTENCY_STATES);
+  this.zGrid().invalidate(this.zGrid().SUPPORTED_CONSISTENCY_STATES);
 
   this.invalidate(consistency, anychart.Signal.NEEDS_REDRAW);
 };
