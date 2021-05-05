@@ -1,38 +1,67 @@
 goog.provide('anychart.surfaceModule.markers.Marker');
 
-goog.require('acgraph.vector.Layer');
-goog.require('acgraph.vector.Path');
+goog.require('anychart.core.VisualBase');
+
 
 
 /**
- * Drawable marker.
+ * Drawable marker. Draw simple shape by passed coordinates.
  *
  * @param {anychart.surfaceModule.markers.Controller} controller
  * @param {anychart.surfaceModule.markers.droplines.Dropline} dropline
  *
+ *
+ * @extends {anychart.core.VisualBase}
  * @constructor
  */
 anychart.surfaceModule.markers.Marker = function(controller, dropline) {
+  anychart.surfaceModule.markers.Marker.base(this, 'constructor');
+
+  /**
+   * Markers controller reference.
+   * @type {anychart.surfaceModule.markers.Controller}
+   * @private
+   */
   this.controller_ = controller;
+
+  /**
+   * Dropline reference..
+   * @type {anychart.surfaceModule.markers.droplines.Dropline}
+   * @private
+   */
   this.dropline_ = dropline;
 
-  this.container_ = new acgraph.vector.Layer();
-  this.path_ = new acgraph.vector.Path();
+  /**
+   * Root layer for marker and dropline drawing.
+   * @type {!acgraph.vector.Layer}
+   * @private
+   */
+  this.rootLayer_ = acgraph.layer();
 
-  this.container_.addChild(/**@type {!acgraph.vector.Element}*/(this.dropline_.getPath()));
-  this.container_.addChild(this.path_);
+  /**
+   * Path that used for marker drawing.
+   * @type {!acgraph.vector.Path}
+   * @private
+   */
+  this.path_ = acgraph.path();
+
+  this.dropline_.container(this.rootLayer_);
+  this.path_.parent(this.rootLayer_);
 
   this.initEventHandlers_();
 };
+goog.inherits(anychart.surfaceModule.markers.Marker, anychart.core.VisualBase);
 
 
 // region --- Drawing.
 /**
  * Draw marker shape.
  */
-anychart.surfaceModule.markers.Marker.prototype.drawShape = function() {
+anychart.surfaceModule.markers.Marker.prototype.drawShape_ = function() {
   var drawer = this.controller_.resolveDrawer(this);
   var size = this.controller_.resolveSize(this);
+
+  this.path_.clear();
 
   drawer(this.path_,
     this.coordinates_[1],
@@ -46,18 +75,9 @@ anychart.surfaceModule.markers.Marker.prototype.drawShape = function() {
 /**
  * Apply appearance settings to the marker path.
  */
-anychart.surfaceModule.markers.Marker.prototype.applyAppearance = function() {
+anychart.surfaceModule.markers.Marker.prototype.applyAppearance_ = function() {
   this.path_.fill(this.controller_.resolveFill(this));
   this.path_.stroke(this.controller_.resolveStroke(this));
-};
-
-
-/**
- * Return container that used for marker drawing.
- * @return {acgraph.vector.Layer}
- */
-anychart.surfaceModule.markers.Marker.prototype.getLayer = function() {
-  return this.container_;
 };
 
 
@@ -65,12 +85,15 @@ anychart.surfaceModule.markers.Marker.prototype.getLayer = function() {
  * Draw marker.
  */
 anychart.surfaceModule.markers.Marker.prototype.draw = function() {
-  this.path_.clear();
-
   if (this.controller_.getOption('enabled')) {
+    this.rootLayer_.parent(/** @type {acgraph.vector.ILayer}*/(this.container()));
+
     this.dropline_.draw();
-    this.drawShape();
-    this.applyAppearance();
+
+    this.drawShape_();
+    this.applyAppearance_();
+  } else {
+    this.rootLayer_.parent(null);
   }
 };
 
@@ -96,6 +119,7 @@ anychart.surfaceModule.markers.Marker.prototype.handleMouseEvent_ = function(eve
 anychart.surfaceModule.markers.Marker.prototype.initEventHandlers_ = function() {
   this.path_.listen(goog.events.EventType.MOUSEMOVE, this.handleMouseEvent_, false, this);
   this.path_.listen(goog.events.EventType.MOUSEOUT, this.handleMouseEvent_, false, this);
+  this.path_.listen(goog.events.EventType.MOUSEOVER, this.handleMouseEvent_, false, this);
 };
 
 
@@ -115,11 +139,12 @@ anychart.surfaceModule.markers.Marker.prototype.getDropline = function() {
  * Marker data.
  *
  * @param {Array.<number>=} opt_data
- * @return {Array.<number>}
+ * @return {Array.<number>|anychart.surfaceModule.markers.Marker}
  */
 anychart.surfaceModule.markers.Marker.prototype.data = function(opt_data) {
   if (opt_data) {
     this.data_ = opt_data;
+    return this;
   }
   return this.data_;
 };
@@ -129,27 +154,14 @@ anychart.surfaceModule.markers.Marker.prototype.data = function(opt_data) {
  * Getter/Setter for markers coordinates.
  *
  * @param {Array.<number>=} opt_coordinates - Array with coordinates.
- * @return {Array.<number>}
+ * @return {Array.<number>|anychart.surfaceModule.markers.Marker}
  */
 anychart.surfaceModule.markers.Marker.prototype.coordinates = function(opt_coordinates) {
   if (opt_coordinates) {
     this.coordinates_ = opt_coordinates;
+    return this;
   }
   return this.coordinates_;
-};
-
-
-/**
- * Marker zIindex.
- *
- * @param {number=} opt_zIndex
- * @return {number}
- */
-anychart.surfaceModule.markers.Marker.prototype.zIndex = function(opt_zIndex) {
-  if (opt_zIndex) {
-    this.zIndex_ = opt_zIndex;
-  }
-  return this.zIndex_;
 };
 
 
@@ -157,11 +169,12 @@ anychart.surfaceModule.markers.Marker.prototype.zIndex = function(opt_zIndex) {
  * Marker data index.
  *
  * @param {number=} opt_index
- * @return {number}
+ * @return {number|anychart.surfaceModule.markers.Marker}
  */
 anychart.surfaceModule.markers.Marker.prototype.index = function(opt_index) {
   if (goog.isDef(opt_index)) {
     this.index_ = opt_index;
+    return this;
   }
   return this.index_;
 };
@@ -172,14 +185,15 @@ anychart.surfaceModule.markers.Marker.prototype.index = function(opt_index) {
 /**
  * Dispose created dom elements.
  */
-anychart.surfaceModule.markers.Marker.prototype.dispose = function() {
-  this.container_.remove();
-  this.path_.remove();
+anychart.surfaceModule.markers.Marker.prototype.disposeInternal = function() {
+  goog.disposeAll(
+    this.rootLayer_,
+    this.path_,
+    this.dropline_
+  );
 
-  this.container_ = null;
-  this.path_ = null;
-
-  this.getDropline().dispose();
   this.dropline_ = null;
+
+  anychart.surfaceModule.markers.Marker.base(this, 'disposeInternal');
 };
 //endregion

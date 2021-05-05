@@ -4,8 +4,10 @@ goog.require('anychart.core.Base');
 goog.require('anychart.surfaceModule.markers.droplines.Dropline');
 
 
+
 /**
- * Droplines controller. Create droplines and resolve settings for it.
+ * Droplines controller.
+ * Instantiate droplines and resolve settings for it.
  *
  * @extends {anychart.core.Base}
  * @constructor
@@ -24,6 +26,7 @@ goog.inherits(anychart.surfaceModule.markers.droplines.Controller, anychart.core
 
 
 /**
+ * Supported signals.
  * @type {number}
  */
 anychart.surfaceModule.markers.droplines.Controller.prototype.SUPPORTED_SIGNALS =
@@ -31,6 +34,9 @@ anychart.surfaceModule.markers.droplines.Controller.prototype.SUPPORTED_SIGNALS 
   anychart.Signal.NEEDS_REDRAW_APPEARANCE;
 
 
+/**
+ * @type {!Object.<string, anychart.core.settings.PropertyDescriptor>}
+ */
 anychart.surfaceModule.markers.droplines.Controller.PROPERTY_DESCRIPTORS = (function() {
   /** @type {!Object.<string, anychart.core.settings.PropertyDescriptor>} */
   var map = {};
@@ -65,14 +71,12 @@ anychart.surfaceModule.markers.droplines.Controller.prototype.resolveColor = fun
  *
  * @param {anychart.surfaceModule.markers.droplines.Dropline} dropline
  * @param {{
- *   coordinates: {
- *     from: Array.<number>,
- *     to: Array.<number>
- *   }
- * }} config
+ *   from: Array.<number>,
+ *   to: Array.<number>
+ * }} config - Object that contains coordinates for dropline drawing.
  */
 anychart.surfaceModule.markers.droplines.Controller.prototype.setupDropline = function(dropline, config) {
-  dropline.coordinates(config.coordinates);
+  dropline.coordinates(config);
 };
 
 

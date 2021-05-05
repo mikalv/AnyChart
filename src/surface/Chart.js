@@ -395,15 +395,15 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
   var markersYValues = [];
   var markersZValues = [];
 
-  if (this.markers().getOption('enabled') && this.markers().data()) {
-    goog.array.forEach(this.markers().getMarkers(), function(marker) {
-      var data = marker.data();
 
-      markersXValues.push(data[0]);
-      markersYValues.push(data[1]);
-      markersZValues.push(data[2]);
-    });
-  }
+  goog.array.forEach(this.markers().getMarkers(), function(marker) {
+    var data = marker.data();
+
+    markersXValues.push(data[0]);
+    markersYValues.push(data[1]);
+    markersZValues.push(data[2]);
+  });
+
 
   xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), goog.array.concat(this.valuesX_, markersXValues));
   yScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(yScale), goog.array.concat(this.valuesY_, markersYValues));
@@ -729,8 +729,7 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
     this.surfaceLayer_ = this.rootLayer_.layer();
     this.surfaceLayer_.zIndex(anychart.surfaceModule.Chart.Z_INDEX_ROOT_LAYER);
 
-    this.markersContainer_ = this.rootLayer_.layer();
-    this.markers().container(this.markersContainer_);
+    this.markers().container(this.rootLayer_);
     // this line eliminates gaps between polygons, but makes surface look less antialiased
     // this.surfaceLayer_.attr('shape-rendering', 'crispEdges');
   }
@@ -1314,17 +1313,17 @@ anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
  * @private
  */
 anychart.surfaceModule.Chart.prototype.markersInvalidated_ = function(signal) {
-  var consistency = anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.AXES_CHART_GRIDS;
+  var state = anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.AXES_CHART_GRIDS;
 
   if (signal.hasSignal(anychart.Signal.DATA_CHANGED)) {
-    consistency |= anychart.ConsistencyState.SCALE_CHART_SCALES;
+    state |= anychart.ConsistencyState.SCALE_CHART_SCALES;
   }
 
   this.xGrid().invalidate(this.xGrid().SUPPORTED_CONSISTENCY_STATES);
   this.yGrid().invalidate(this.yGrid().SUPPORTED_CONSISTENCY_STATES);
   this.zGrid().invalidate(this.zGrid().SUPPORTED_CONSISTENCY_STATES);
 
-  this.invalidate(consistency, anychart.Signal.NEEDS_REDRAW);
+  this.invalidate(state, anychart.Signal.NEEDS_REDRAW);
 };
 
 
@@ -1563,6 +1562,7 @@ anychart.surfaceModule.Chart.prototype.setupByJSON = function(config, opt_defaul
 /** @inheritDoc */
 anychart.surfaceModule.Chart.prototype.disposeInternal = function() {
   goog.disposeAll(
+      this.markers_,
       this.xAxis_,
       this.yAxis_,
       this.zAxis_,

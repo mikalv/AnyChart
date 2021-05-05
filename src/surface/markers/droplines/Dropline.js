@@ -1,15 +1,21 @@
 goog.provide('anychart.surfaceModule.markers.droplines.Dropline');
 
-goog.require('acgraph.vector.Path');
+goog.require('anychart.core.VisualBase');
+
+
 
 /**
  * Drawable dropline.
+ * Dropline represented as line that drawn from point coordinate into chart z minimum.
  *
  * @param {anychart.surfaceModule.markers.droplines.Controller} controller
  *
  * @constructor
+ * @extends {anychart.core.VisualBase}
  */
 anychart.surfaceModule.markers.droplines.Dropline = function(controller) {
+  anychart.surfaceModule.markers.droplines.Dropline.base(this, 'constructor');
+
   /**
    * Dropline controller reference.
    * @type {anychart.surfaceModule.markers.droplines.Controller}
@@ -23,39 +29,28 @@ anychart.surfaceModule.markers.droplines.Dropline = function(controller) {
    * @type {acgraph.vector.Path}
    * @private
    */
-  this.path_ = new acgraph.vector.Path();
+  this.path_ = acgraph.path();
 };
+goog.inherits(anychart.surfaceModule.markers.droplines.Dropline, anychart.core.VisualBase);
 
 
 //region --- Drawing
-/**
- * Return path that used for dropline drawing.
- *
- * @return {acgraph.vector.Path}
- */
-anychart.surfaceModule.markers.droplines.Dropline.prototype.getPath = function() {
-  return this.path_;
-};
-
-
 /**
  * Draw line.
  *
  * @private
  */
 anychart.surfaceModule.markers.droplines.Dropline.prototype.drawLine_ = function() {
-  var coordinates = this.coordinates();
-
-  this.path_.moveTo(coordinates.from[1], coordinates.from[2]);
-  this.path_.lineTo(coordinates.to[1], coordinates.to[2]);
+  this.path_.moveTo(this.coordinates_.from[1], this.coordinates_.from[2]);
+  this.path_.lineTo(this.coordinates_.to[1], this.coordinates_.to[2]);
 };
 
 
 /**
- * Apply dropline style.
+ * Apply dropline appearance.
  * @private
  */
-anychart.surfaceModule.markers.droplines.Dropline.prototype.applyStyle_ = function() {
+anychart.surfaceModule.markers.droplines.Dropline.prototype.applyAppearance_ = function() {
   this.path_.stroke(this.controller_.resolveColor(this));
 };
 
@@ -64,10 +59,13 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.applyStyle_ = functi
  * Draw dropline.
  */
 anychart.surfaceModule.markers.droplines.Dropline.prototype.draw = function() {
-  this.path_.clear();
   if (this.controller_.getOption('enabled')) {
+    this.path_.clear();
+    this.path_.parent(/**@type {acgraph.vector.Layer}*/(this.container()));
     this.drawLine_();
-    this.applyStyle_();
+    this.applyAppearance_();
+  } else {
+    this.path_.parent(null);
   }
 };
 
@@ -85,11 +83,12 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.draw = function() {
  * @return {{
  *   from: Array.<number>,
  *   to: Array.<number>
- * }}
+ * } | anychart.surfaceModule.markers.droplines.Dropline}
  */
 anychart.surfaceModule.markers.droplines.Dropline.prototype.coordinates = function(opt_coordinates) {
   if (opt_coordinates) {
     this.coordinates_ = opt_coordinates;
+    return this;
   }
 
   return this.coordinates_;
@@ -101,8 +100,8 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.coordinates = functi
 /**
  * Dispose created dom elements.
  */
-anychart.surfaceModule.markers.droplines.Dropline.prototype.dispose = function() {
-  this.path_.remove();
-  this.path_ = null;
+anychart.surfaceModule.markers.droplines.Dropline.prototype.disposeInternal = function() {
+  goog.dispose(this.path_);
+  anychart.surfaceModule.markers.droplines.Dropline.base(this, 'disposeInternal');
 };
 //endregion
