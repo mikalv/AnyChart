@@ -311,6 +311,7 @@ anychart.surfaceModule.markers.Controller.prototype.data = function(opt_value, o
  *
  * @param {anychart.surfaceModule.markers.Marker} marker - Marker instance.
  * @param {goog.events.Event} event - Browser event.
+ * @private
  */
 anychart.surfaceModule.markers.Controller.prototype.handleMouseOverAndMove_ = function(marker, event) {
   this.tooltip().showFloat(event.clientX, event.clientY, this.getContextProviderForMarker(marker, this.getBaseContext(marker)));
@@ -321,8 +322,9 @@ anychart.surfaceModule.markers.Controller.prototype.handleMouseOverAndMove_ = fu
 //region --- Events
 /**
  * MouseOut event handler.
+ * @private
  */
-anychart.surfaceModule.markers.Controller.prototype.handleMouseOut = function() {
+anychart.surfaceModule.markers.Controller.prototype.handleMouseOut_ = function() {
   this.tooltip().hide();
 };
 
@@ -337,7 +339,7 @@ anychart.surfaceModule.markers.Controller.prototype.handleMarkerMouseEvents = fu
   if (event.type === goog.events.EventType.MOUSEMOVE || event.type === goog.events.EventType.MOUSEOVER) {
     this.handleMouseOverAndMove_(marker, event);
   } else if (event.type === goog.events.EventType.MOUSEOUT) {
-    this.handleMouseOut();
+    this.handleMouseOut_();
   }
 };
 
@@ -428,44 +430,6 @@ anychart.surfaceModule.markers.Controller.prototype.resolveDrawer = function(mar
 
 
 //endregion
-// region --- Overrides
-/** @inheritDoc */
-anychart.surfaceModule.markers.Controller.prototype.serialize = function() {
-  var rv = {};
-  anychart.core.settings.serialize(this, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS, rv);
-
-  var data = this.data();
-  if (data) {
-    rv['data'] = data.serialize();
-  }
-
-  return rv;
-};
-
-
-/** @inheritDoc */
-anychart.surfaceModule.markers.Controller.prototype.setupByJSON = function(json, opt_default) {
-  anychart.core.settings.deserialize(this, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS, json, opt_default);
-  var data = json['data'];
-  if (data) {
-    this.data(data);
-  }
-};
-
-
-/** @inheritDoc */
-anychart.surfaceModule.markers.Controller.prototype.disposeInternal = function() {
-  goog.disposeAll(
-    this.markers_,
-    this.droplines_
-  );
-
-  this.markers_.length = 0;
-  this.chart_ = null;
-};
-
-
-// endregion
 //region --- Tooltip
 /**
  * Returns context that contains base marker info.
@@ -569,6 +533,45 @@ anychart.surfaceModule.markers.Controller.prototype.tooltip = function(opt_value
 
 
 //endregion
+// region --- Overrides
+/** @inheritDoc */
+anychart.surfaceModule.markers.Controller.prototype.serialize = function() {
+  var rv = {};
+  anychart.core.settings.serialize(this, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS, rv);
+
+  var data = this.data();
+  if (data) {
+    rv['data'] = data.serialize();
+  }
+
+  return rv;
+};
+
+
+/** @inheritDoc */
+anychart.surfaceModule.markers.Controller.prototype.setupByJSON = function(json, opt_default) {
+  anychart.core.settings.deserialize(this, anychart.surfaceModule.markers.Controller.PROPERTY_DESCRIPTORS, json, opt_default);
+  var data = json['data'];
+  if (data) {
+    this.data(data);
+  }
+};
+
+
+/** @inheritDoc */
+anychart.surfaceModule.markers.Controller.prototype.disposeInternal = function() {
+  goog.disposeAll(
+    this.markers_,
+    this.droplines_,
+    this.rootLayer_
+  );
+
+  this.markers_.length = 0;
+  this.chart_ = null;
+};
+
+
+// endregion
 (function() {
   var proto = anychart.surfaceModule.markers.Controller.prototype;
   proto['droplines'] = proto.droplines;

@@ -395,14 +395,18 @@ anychart.surfaceModule.Chart.prototype.calculate = function() {
   var markersYValues = [];
   var markersZValues = [];
 
+  var markersController = this.getCreated('markers');
+  if (markersController) {
+    var markers = markersController.getMarkers();
+    for (var i = 0; i < markers.length; i++) {
+      var marker = markers[i];
+      var data = marker.data();
 
-  goog.array.forEach(this.markers().getMarkers(), function(marker) {
-    var data = marker.data();
-
-    markersXValues.push(data[0]);
-    markersYValues.push(data[1]);
-    markersZValues.push(data[2]);
-  });
+      markersXValues.push(data[0]);
+      markersYValues.push(data[1]);
+      markersZValues.push(data[2]);
+    }
+  }
 
 
   xScale.extendDataRange.apply(/** @type {anychart.scales.Base} */(xScale), goog.array.concat(this.valuesX_, markersXValues));
@@ -728,8 +732,6 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
     this.rootLayer_.zIndex(anychart.surfaceModule.Chart.Z_INDEX_ROOT_LAYER);
     this.surfaceLayer_ = this.rootLayer_.layer();
     this.surfaceLayer_.zIndex(anychart.surfaceModule.Chart.Z_INDEX_ROOT_LAYER);
-
-    this.markers().container(this.rootLayer_);
     // this line eliminates gaps between polygons, but makes surface look less antialiased
     // this.surfaceLayer_.attr('shape-rendering', 'crispEdges');
   }
@@ -823,7 +825,13 @@ anychart.surfaceModule.Chart.prototype.drawContent = function(bounds) {
 
   if (this.hasInvalidationState(anychart.ConsistencyState.APPEARANCE)) {
     this.drawSurface(this.dataBounds_);
-    this.markers().draw(this.dataBounds_);
+
+    var markersController = this.getCreated('markers');
+
+    if (markersController) {
+      markersController.container(this.rootLayer_);
+      markersController.draw(this.dataBounds_);
+    }
     this.markConsistent(anychart.ConsistencyState.APPEARANCE);
   }
 
@@ -1309,13 +1317,13 @@ anychart.surfaceModule.Chart.prototype.onGridSignal_ = function(event) {
 /**
  * Markers invalidation handler.
  *
- * @param {anychart.SignalEvent} signal
+ * @param {anychart.SignalEvent} event
  * @private
  */
-anychart.surfaceModule.Chart.prototype.markersInvalidated_ = function(signal) {
+anychart.surfaceModule.Chart.prototype.markersInvalidated_ = function(event) {
   var state = anychart.ConsistencyState.APPEARANCE | anychart.ConsistencyState.AXES_CHART_GRIDS;
 
-  if (signal.hasSignal(anychart.Signal.DATA_CHANGED)) {
+  if (event.hasSignal(anychart.Signal.DATA_CHANGED)) {
     state |= anychart.ConsistencyState.SCALE_CHART_SCALES;
   }
 
@@ -1506,7 +1514,10 @@ anychart.surfaceModule.Chart.prototype.serialize = function() {
   if (this.colorRange_)
     json['colorRange'] = this.colorRange().serialize();
 
-  json['markers'] = this.markers().serialize();
+  var markersController = this.getCreated('markers');
+  if (markersController) {
+    json['markers'] = markersController.serialize();
+  }
 
   anychart.core.settings.serialize(this, anychart.surfaceModule.Chart.OWN_DESCRIPTORS, json);
   return {'chart': json};
@@ -1545,14 +1556,16 @@ anychart.surfaceModule.Chart.prototype.setupByJSON = function(config, opt_defaul
   this.setupScalesByJSON(config, 'yGrid');
   this.setupScalesByJSON(config, 'zGrid');
 
-  if ('colorScale' in config)
+  if ('colorScale' in config) {
     this.colorScale(config['colorScale']);
-  if ('colorRange' in config)
-    this.colorRange(config['colorRange']);
+  }
 
-  var markersConfig = config['markers'];
-  if (markersConfig) {
-    this.markers(markersConfig);
+  if ('colorRange' in config) {
+    this.colorRange(config['colorRange']);
+  }
+
+  if ('markers' in config) {
+    this.markers(config['markers']);
   }
 
   anychart.core.settings.deserialize(this, anychart.surfaceModule.Chart.OWN_DESCRIPTORS, config, opt_default);

@@ -33,14 +33,14 @@ anychart.surfaceModule.markers.Marker = function(controller, dropline) {
 
   /**
    * Root layer for marker and dropline drawing.
-   * @type {!acgraph.vector.Layer}
+   * @type {acgraph.vector.Layer}
    * @private
    */
   this.rootLayer_ = acgraph.layer();
 
   /**
    * Path that used for marker drawing.
-   * @type {!acgraph.vector.Path}
+   * @type {acgraph.vector.Path}
    * @private
    */
   this.path_ = acgraph.path();
@@ -56,6 +56,7 @@ goog.inherits(anychart.surfaceModule.markers.Marker, anychart.core.VisualBase);
 // region --- Drawing.
 /**
  * Draw marker shape.
+ * @private
  */
 anychart.surfaceModule.markers.Marker.prototype.drawShape_ = function() {
   var drawer = this.controller_.resolveDrawer(this);
@@ -74,6 +75,7 @@ anychart.surfaceModule.markers.Marker.prototype.drawShape_ = function() {
 
 /**
  * Apply appearance settings to the marker path.
+ * @private
  */
 anychart.surfaceModule.markers.Marker.prototype.applyAppearance_ = function() {
   this.path_.fill(this.controller_.resolveFill(this));
@@ -193,6 +195,8 @@ anychart.surfaceModule.markers.Marker.prototype.disposeInternal = function() {
   );
 
   this.dropline_ = null;
+  this.rootLayer_ = null;
+  this.path_ = null;
 
   anychart.surfaceModule.markers.Marker.base(this, 'disposeInternal');
 };

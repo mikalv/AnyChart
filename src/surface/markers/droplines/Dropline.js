@@ -18,6 +18,7 @@ anychart.surfaceModule.markers.droplines.Dropline = function(controller) {
 
   /**
    * Dropline controller reference.
+   *
    * @type {anychart.surfaceModule.markers.droplines.Controller}
    * @private
    */
@@ -48,6 +49,7 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.drawLine_ = function
 
 /**
  * Apply dropline appearance.
+ *
  * @private
  */
 anychart.surfaceModule.markers.droplines.Dropline.prototype.applyAppearance_ = function() {
@@ -102,6 +104,8 @@ anychart.surfaceModule.markers.droplines.Dropline.prototype.coordinates = functi
  */
 anychart.surfaceModule.markers.droplines.Dropline.prototype.disposeInternal = function() {
   goog.dispose(this.path_);
+  this.path_ = null;
+
   anychart.surfaceModule.markers.droplines.Dropline.base(this, 'disposeInternal');
 };
 //endregion
