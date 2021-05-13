@@ -557,8 +557,13 @@ anychart.calendarModule.Chart.prototype.colorRange = function(opt_value) {
  * @return {anychart.format.Context}
  */
 anychart.calendarModule.Chart.prototype.createContextProvider = function(tag) {
-  if (!this.contextProvider_)
+  if (!this.contextProvider_) {
     this.contextProvider_ = new anychart.format.Context();
+  }
+
+  var iterator = this.getIterator();
+  var index = tag.dataIndex;
+  iterator.select(index);
 
   var values = {
     'x': {
@@ -595,7 +600,11 @@ anychart.calendarModule.Chart.prototype.createContextProvider = function(tag) {
     }
   };
 
-  return /** @type {anychart.format.Context} */ (this.contextProvider_.propagate(values));
+  return /** @type {anychart.format.Context} */ (
+    this.contextProvider_
+      .dataSource(iterator)
+      .propagate(values)
+  );
 };
 
 
