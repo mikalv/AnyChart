@@ -65,6 +65,13 @@ anychart.calendarModule.Chart = function(opt_data, opt_csvSettings) {
    */
   this.dataMeta_ = {};
 
+  /**
+   * Actual chart height.
+   * @type {number}
+   * @private
+   */
+  this.actualHeight_ = 0;
+
   this.invalidate(anychart.ConsistencyState.ALL);
 };
 goog.inherits(anychart.calendarModule.Chart, anychart.core.SeparateChart);
@@ -797,16 +804,21 @@ anychart.calendarModule.Chart.prototype.disablePlotsFromIndex = function(from) {
 
 
 /**
+ * Returns actual chart height.
+ * @return {number} Calculated chart height.
+ */
+anychart.calendarModule.Chart.prototype.getActualHeight = function() {
+  return this.actualHeight_;
+};
+
+
+/**
  * Draw plots.
  *
  * @param {anychart.math.Rect} bounds - Bounds to draw plots at.
  */
 anychart.calendarModule.Chart.prototype.drawPlots = function(bounds) {
   var isInverted = this.years().getOption('inverted');
-
-  var actualPlotHeight;
-  var nextPlotBounds = bounds.clone();
-  var i;
 
   var title = this.years().title();
   var background = this.years().background();
@@ -821,8 +833,16 @@ anychart.calendarModule.Chart.prototype.drawPlots = function(bounds) {
     background: backgroundSettings
   };
 
-  for (i = 0; i < this.representedYears_.length; i++) {
-    var plotIndex = isInverted ? this.representedYears_.length - i - 1 : i;
+  this.actualHeight_ = 0;
+
+  var nextPlotBounds = bounds.clone();
+  var plotUnderSpace = /** @type {number} */ (this.yearsSettings_.getOption('underSpace'));
+
+  var i;
+  var actualPlotHeight;
+  var representedYearsLength = this.representedYears_.length;
+  for (i = 0; i < representedYearsLength; i++) {
+    var plotIndex = isInverted ? representedYearsLength - i - 1 : i;
     var year = this.representedYears_[plotIndex];
 
     var plot = this.getPlot(plotIndex);
@@ -840,10 +860,15 @@ anychart.calendarModule.Chart.prototype.drawPlots = function(bounds) {
     actualPlotHeight = plot.getActualPlotHeight();
     nextPlotBounds = anychart.math.rect(
       nextPlotBounds.left,
-      nextPlotBounds.top + actualPlotHeight + /** @type {number} */ (this.yearsSettings_.getOption('underSpace')),
+      nextPlotBounds.top + actualPlotHeight + plotUnderSpace,
       nextPlotBounds.width,
       nextPlotBounds.height
     );
+    this.actualHeight_ += actualPlotHeight + plotUnderSpace;
+  }
+
+  if (representedYearsLength > 0) {
+    this.actualHeight_ -= plotUnderSpace;
   }
 
   this.disablePlotsFromIndex(this.representedYears_.length);
@@ -1060,6 +1085,8 @@ anychart.calendarModule.Chart.prototype.disposeInternal = function() {
   proto['months'] = proto.months;
   proto['weeks'] = proto.weeks;
   proto['days'] = proto.days;
+
+  proto['getActualHeight'] = proto.getActualHeight;
 
   // auto generated
 })();
