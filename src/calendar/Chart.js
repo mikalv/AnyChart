@@ -871,6 +871,8 @@ anychart.calendarModule.Chart.prototype.drawPlots = function(bounds) {
     this.actualHeight_ -= plotUnderSpace;
   }
 
+  this.actualHeight_ += this.dataBounds_.top - this.getPixelBounds().top;
+
   this.disablePlotsFromIndex(this.representedYears_.length);
 };
 
