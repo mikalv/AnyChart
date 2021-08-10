@@ -967,6 +967,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
   },
 
   'defaultAxis': {
+    'value': null,
     'enabled': true,
     'startAngle': 0,
     'drawLastLabel': true,
@@ -1010,7 +1011,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       'stroke': anychart.core.defaultTheme.colorStrokeThin,
       'zIndex': 35
     },
-    'zIndex': 35
+    'zIndex': 30
   },
 
   'defaultGridSettings': {
