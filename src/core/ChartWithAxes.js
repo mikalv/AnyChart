@@ -1135,7 +1135,7 @@ anychart.core.ChartWithAxes.prototype.getBoundsWithoutAxes = function(contentAre
   var firstLeftAxis, firstTopAxis, firstRightAxis, firstBottomAxis;
   for (i = 0, count = axes.length; i < count; i++) {
     axis = /** @type {anychart.core.Axis} */(axes[i]);
-    if (axis && axis.enabled()) {
+    if (axis && axis.enabled() && goog.isNull(axis.getOption('value'))) {
       switch (axis.getOption('orientation')) {
         case anychart.enums.Orientation.TOP:
           if (!firstTopAxis)
@@ -1701,7 +1701,7 @@ anychart.core.ChartWithAxes.prototype.setupByJSON = function(config, opt_default
  */
 anychart.core.ChartWithAxes.prototype.setupAxisMarkers = function(opt_config) {
   var scalesInstances = this.getScaleInstances();
-  var config  = goog.isDef(opt_config) ? opt_config : this.themeSettings;
+  var config = goog.isDef(opt_config) ? opt_config : this.themeSettings;
   var setupElement = goog.isDef(opt_config);
 
   this.setupElementsWithScales(config['lineAxesMarkers'], this.lineMarker, scalesInstances, setupElement);
@@ -1716,7 +1716,7 @@ anychart.core.ChartWithAxes.prototype.setupAxisMarkers = function(opt_config) {
  */
 anychart.core.ChartWithAxes.prototype.setupGrids = function(opt_config) {
   var scalesInstances = this.getScaleInstances();
-  var config  = goog.isDef(opt_config) ? opt_config : this.themeSettings;
+  var config = goog.isDef(opt_config) ? opt_config : this.themeSettings;
   var setupElement = goog.isDef(opt_config);
 
   this.setupElementsWithScales(config['xGrids'], this.xGrid, scalesInstances, setupElement);

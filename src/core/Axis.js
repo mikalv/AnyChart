@@ -591,6 +591,8 @@ anychart.core.Axis.prototype.padding = function(opt_spaceOrTopOrTopAndBottom, op
 anychart.core.Axis.prototype.valueTarget = function(opt_target) {
   if (goog.isDef(opt_target)) {
     this.valueTarget_ = opt_target;
+    this.invalidate(this.ALL_VISUAL_STATES,
+      anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
   }
 
   return this.valueTarget_;
