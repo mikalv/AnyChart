@@ -1368,6 +1368,43 @@ anychart.core.ChartWithAxes.prototype.getBoundsChangedSignal = function() {
 
 
 /**
+ * Check whether axis visible.
+ *
+ * @param {anychart.core.Axis} axis
+ *
+ * @return {boolean}
+ */
+anychart.core.ChartWithAxes.prototype.isAxisVisible_ = function(axis) {
+  var value = axis.getOption('value');
+  var targetAxis = axis.valueTarget();
+  var scale = targetAxis.scale();
+
+  var isVisible = goog.isNull(value);
+  var ratio = scale.transform(value);
+
+  return isVisible || !isNaN(ratio) && ratio >= 0 && ratio <= 1;
+};
+
+
+/**
+ * Draw axes.
+ *
+ * @param {Array.<anychart.core.Axis>} axes
+ */
+anychart.core.ChartWithAxes.prototype.drawAxes = function(axes) {
+  for (var i = 0; i < axes.length; i++) {
+    var axis = axes[i];
+    if (axis) {
+      axis.suspendSignalsDispatching();
+      axis.container(this.isAxisVisible_(axis) ? this.rootElement : null);
+      axis.draw();
+      axis.resumeSignalsDispatching(false);
+    }
+  }
+};
+
+
+/**
  * Draw chart elements.
  */
 anychart.core.ChartWithAxes.prototype.drawElements = function() {
@@ -1395,17 +1432,8 @@ anychart.core.ChartWithAxes.prototype.drawElements = function() {
   // draw axes outside of data bounds
   // only inside axes ticks can intersect data bounds
   if (this.hasInvalidationState(anychart.ConsistencyState.AXES_CHART_AXES)) {
-    var axes = goog.array.concat(this.xAxes_, this.yAxes_);
-    var axis;
-    for (i = 0, count = axes.length; i < count; i++) {
-      axis = /** @type {anychart.core.Axis} */(axes[i]);
-      if (axis) {
-        axis.suspendSignalsDispatching();
-        axis.container(this.rootElement);
-        axis.draw();
-        axis.resumeSignalsDispatching(false);
-      }
-    }
+    this.drawAxes(this.xAxes_);
+    this.drawAxes(this.yAxes_);
     this.markConsistent(anychart.ConsistencyState.AXES_CHART_AXES);
   }
 
