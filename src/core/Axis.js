@@ -98,7 +98,16 @@ anychart.core.Axis = function() {
     }, this],
     ['orientation', this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED, 0, this.dropStaggeredLabelsCache_, this],
     ['stroke', this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED],
-    ['value', this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED, void 0]
+    ['value',
+      this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
+      void 0,
+      function() {
+        var value = this.getOption('value');
+        var newZIndex = !goog.isNull(value) ? 30 : void 0;
+        this.setAutoZIndex(newZIndex);
+      },
+      this
+    ]
   ]);
 
   this.resumeSignalsDispatching(false);

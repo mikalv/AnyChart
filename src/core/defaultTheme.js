@@ -1011,7 +1011,7 @@ goog.exportSymbol('anychart.themes.defaultTheme', {
       'stroke': anychart.core.defaultTheme.colorStrokeThin,
       'zIndex': 35
     },
-    'zIndex': 30
+    'zIndex': 35
   },
 
   'defaultGridSettings': {
