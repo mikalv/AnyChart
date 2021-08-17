@@ -584,12 +584,12 @@ anychart.core.Axis.prototype.padding = function(opt_spaceOrTopOrTopAndBottom, op
 /**
  * Getter/Setter for the axis that will be used for position calculation.
  *
- * @param {anychart.core.Axis=} opt_target
+ * @param {anychart.core.Axis|number=} opt_target
  *
- * @return {anychart.core.Axis}
+ * @return {anychart.core.Axis|number}
  */
 anychart.core.Axis.prototype.valueTarget = function(opt_target) {
-  if (goog.isDef(opt_target)) {
+  if (goog.isNumber(opt_target) || anychart.utils.instanceOf(opt_target, anychart.core.Axis)) {
     this.valueTarget_ = opt_target;
     this.invalidate(this.ALL_VISUAL_STATES,
       anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED);
@@ -1523,9 +1523,8 @@ anychart.core.Axis.prototype.getRemainingBounds = function(opt_includeInsideCont
     }
 
     return remainingBounds;
-  }
-
-  return new anychart.math.Rect(0, 0, 0, 0);
+  } else
+    return new anychart.math.Rect(0, 0, 0, 0);
 };
 
 
@@ -2366,8 +2365,6 @@ anychart.core.Axis.prototype.hasInsideElements = function() {
 anychart.core.Axis.prototype.serialize = function() {
   var json = anychart.core.Axis.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.core.Axis.SIMPLE_PROPS_DESCRIPTORS, json);
-
-  json['valueTarget'] = this.valueTarget();
   json['title'] = this.title().serialize();
   json['labels'] = this.labels().serialize();
   json['minorLabels'] = this.minorLabels().serialize();
@@ -2387,9 +2384,6 @@ anychart.core.Axis.prototype.setupByJSON = function(config, opt_default) {
 
   if ('padding' in config)
     this.padding(config['padding']);
-
-  if ('valueTarget' in config)
-    this.valueTarget(config['valueTarget']);
 
   this.labels().setupInternal(!!opt_default, config['labels']);
   this.minorLabels().setupInternal(!!opt_default, config['minorLabels']);

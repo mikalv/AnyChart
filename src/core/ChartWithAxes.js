@@ -552,7 +552,7 @@ anychart.core.ChartWithAxes.prototype.xAxis = function(opt_indexOrValue, opt_val
   var axis = this.xAxes_[index];
   if (!axis) {
     axis = new anychart.core.Axis();
-    axis.valueTarget(this.yAxes_[0]);
+    axis.valueTarget(0);
     axis.setParentEventTarget(this);
     this.setupCreated('defaultXAxisSettings', axis);
     this.xAxes_[index] = axis;
@@ -591,7 +591,7 @@ anychart.core.ChartWithAxes.prototype.yAxis = function(opt_indexOrValue, opt_val
   var axis = this.yAxes_[index];
   if (!axis) {
     axis = new anychart.core.Axis();
-    axis.valueTarget(this.xAxes_[0]);
+    axis.valueTarget(0);
     this.setupCreated('defaultYAxisSettings', axis);
     axis.setParentEventTarget(this);
     this.yAxes_[index] = axis;
@@ -676,6 +676,31 @@ anychart.core.ChartWithAxes.prototype.getYAxisByIndex = function(index) {
  */
 anychart.core.ChartWithAxes.prototype.setYAxisScale = function(axis) {
   axis.scale(/** @type {anychart.scales.Base} */(this.yScale()));
+};
+
+
+/**
+ * Extract target axis from axis.
+ *
+ * @param {anychart.core.Axis} axis
+ * @return {anychart.core.Axis}
+ */
+anychart.core.ChartWithAxes.prototype.getValueTargetFromAxis = function(axis) {
+  var target = axis.valueTarget();
+
+  if (anychart.utils.instanceOf(target, anychart.core.Axis)) {
+    return /** @type {anychart.core.Axis} */ (target);
+  }
+
+  if (goog.array.contains(this.xAxes_, axis)) {
+    return this.yAxes_[ /** @type {number} */(target)];
+  }
+
+  if (goog.array.contains(this.yAxes_, axis)) {
+    return this.xAxes_[/** @type {number} */(target)];
+  }
+
+  return axis;
 };
 
 
@@ -1310,7 +1335,7 @@ anychart.core.ChartWithAxes.prototype.placeCrossAxes_ = function(axes, bounds) {
         axis.parentBounds(bounds);
 
         var axisBounds = axis.getPixelBounds(true);
-        var targetScale = axis.valueTarget().scale();
+        var targetScale = this.getValueTargetFromAxis(axis).scale();
         var orientation = axis.getOption('orientation');
         var padding = 0;
 
@@ -1376,7 +1401,7 @@ anychart.core.ChartWithAxes.prototype.getBoundsChangedSignal = function() {
  */
 anychart.core.ChartWithAxes.prototype.isAxisVisible_ = function(axis) {
   var value = axis.getOption('value');
-  var targetAxis = axis.valueTarget();
+  var targetAxis = this.getValueTargetFromAxis(axis);
   var scale = targetAxis.scale();
 
   var isVisible = goog.isNull(value);
@@ -1781,21 +1806,28 @@ anychart.core.ChartWithAxes.prototype.setupByJSONWithScales = function(config, s
 
   if ('crosshair' in config)
     this.crosshair().setupInternal(!!opt_default, config['crosshair']);
+
+  if ('yCrossAxes' in config) {
+    this.setupCrossAxes(this.yAxes_, config['yCrossAxes']);
+  }
+
+  if ('xCrossAxes' in config) {
+    this.setupCrossAxes(this.xAxes_, config['xCrossAxes']);
+  }
 };
 
 
 /**
- * Setup target as 'valueTarget' for each axis that array of axes includes.
+ * Setup valueTartget for axes.
  *
  * @param {Array.<anychart.core.Axis>} axes
- * @param {anychart.core.Axis} target
+ * @param {Object.<number>} info
  */
-anychart.core.ChartWithAxes.prototype.setupValueTargetForAxes = function(axes, target) {
-  for (var i = 0; i < axes.length; i++) {
-    var axis = axes[i];
-    if (axis) {
-      axis.valueTarget(target);
-    }
+anychart.core.ChartWithAxes.prototype.setupCrossAxes = function(axes, info) {
+  for (var axisIndex in info) {
+    var index = parseInt(axisIndex,10);
+    var axis = axes[index];
+    axis.valueTarget(info[index]);
   }
 };
 
@@ -1811,14 +1843,32 @@ anychart.core.ChartWithAxes.prototype.setupAxes = function(opt_config) {
 
   this.setupElementsWithScales(config['xAxes'], this.xAxis, scalesInstances, setupElement);
   this.setupElementsWithScales(config['yAxes'], this.yAxis, scalesInstances, setupElement);
-
-  this.setupValueTargetForAxes(this.xAxes_, this.yAxes_[0]);
-  this.setupValueTargetForAxes(this.yAxes_, this.xAxes_[0]);
 };
 
-// anychart.core.ChartWithAxes.prototype.serializeCrossAxes = function(axes) {
-//
-// };
+
+/**
+ * Serialize 'valueTarget' info.
+ *
+ * @param {Array.<anychart.core.Axis>} axes
+ * @param {Array.<anychart.core.Axis>} targetsArray
+ *
+ * @return {Object.<number>}
+ */
+anychart.core.ChartWithAxes.prototype.serializeCrossAxes = function(axes, targetsArray) {
+  var info = {};
+
+  for (var i = 0; i < axes.length; i++) {
+    var axis = axes[i];
+    if (axis) {
+      var target = axis.valueTarget();
+      info[i] = goog.isNumber(target) ?
+        /** @type {number} */ (target) :
+        goog.array.indexOf(targetsArray, /** @type {anychart.core.Axis} */ (target));
+    }
+  }
+
+  return info;
+};
 
 
 /** @inheritDoc */
@@ -1826,6 +1876,8 @@ anychart.core.ChartWithAxes.prototype.serialize = function() {
   var json = anychart.core.ChartWithAxes.base(this, 'serialize');
   json['crossing'] = this.crossing().serialize();
   json['quarters'] = this.quarters().serialize();
+  json['yCrossAxes'] = this.serializeCrossAxes(this.yAxes_, this.xAxes_);
+  json['xCrossAxes'] = this.serializeCrossAxes(this.xAxes_, this.yAxes_);
   return json;
 };
 
