@@ -1339,6 +1339,8 @@ anychart.core.ChartWithAxes.prototype.placeCrossAxes_ = function(axes, bounds) {
         var orientation = axis.getOption('orientation');
         var padding = 0;
 
+        axis.padding(padding);
+
         var axisPositionRatio = targetScale.transform(axisValue) + targetScale.getPointWidthRatio() / 2;
         if (orientation === anychart.enums.Orientation.TOP) {
           padding = bounds.height * (1 - axisPositionRatio) - axisBounds.height;
