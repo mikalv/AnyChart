@@ -1820,7 +1820,9 @@ anychart.core.ChartWithAxes.prototype.setupByJSONWithScales = function(config, s
 
 
 /**
- * Setup valueTartget for axes.
+ * Setup valueTarget for axes.
+ *
+ * @protected
  *
  * @param {Array.<anychart.core.Axis>} axes
  * @param {Object.<number>} info
@@ -1850,6 +1852,8 @@ anychart.core.ChartWithAxes.prototype.setupAxes = function(opt_config) {
 
 /**
  * Serialize 'valueTarget' info.
+ *
+ * @protected
  *
  * @param {Array.<anychart.core.Axis>} axes
  * @param {Array.<anychart.core.Axis>} targetsArray

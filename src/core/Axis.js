@@ -102,10 +102,9 @@ anychart.core.Axis = function() {
       this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW | anychart.Signal.BOUNDS_CHANGED,
       void 0,
       function() {
-        this.dropBoundsCache();
         var value = this.getOption('value');
-        var newZIndex = !goog.isNull(value) ? 30 : void 0;
-        this.setAutoZIndex(newZIndex);
+        this.setAutoZIndex(goog.isNull(value) ? void 0 : 25);
+        this.invalidate(anychart.ConsistencyState.Z_INDEX);
       },
       this
     ]
