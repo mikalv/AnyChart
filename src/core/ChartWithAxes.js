@@ -1341,7 +1341,10 @@ anychart.core.ChartWithAxes.prototype.placeCrossAxes_ = function(axes, bounds) {
 
         axis.padding(padding);
 
-        var axisPositionRatio = targetScale.transform(axisValue) + targetScale.getPointWidthRatio() / 2;
+        var pointWidthRatio = targetScale.getPointWidthRatio();
+        var axisPositionRatio = targetScale.transform(axisValue) +
+          (targetScale.inverted() ? -pointWidthRatio : pointWidthRatio) / 2;
+
         if (orientation === anychart.enums.Orientation.TOP) {
           padding = bounds.height * (1 - axisPositionRatio) - axisBounds.height;
         } else if (orientation === anychart.enums.Orientation.BOTTOM) {
@@ -1409,7 +1412,11 @@ anychart.core.ChartWithAxes.prototype.isAxisVisible_ = function(axis) {
   var isVisible = goog.isNull(value);
   var ratio = scale.transform(value);
 
-  return isVisible || !isNaN(ratio) && ratio >= 0 && ratio <= 1;
+  var halfPointWidthRatio = scale.getPointWidthRatio() / 2;
+
+  return isVisible ||
+    !isNaN(ratio) &&
+    ratio >= -halfPointWidthRatio && ratio <= 1 - halfPointWidthRatio; // Hide axis if it locate off bounds.
 };
 
 
