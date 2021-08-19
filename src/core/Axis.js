@@ -103,7 +103,11 @@ anychart.core.Axis = function() {
       void 0,
       function() {
         var value = this.getOption('value');
-        this.setAutoZIndex(goog.isNull(value) ? void 0 : 25);
+        if (goog.isNull(value)) {
+          this.resetAutoZIndex();
+        } else {
+          this.setAutoZIndex(25);
+        }
         this.invalidate(anychart.ConsistencyState.Z_INDEX);
       },
       this
@@ -2374,6 +2378,11 @@ anychart.core.Axis.prototype.hasInsideElements = function() {
 anychart.core.Axis.prototype.serialize = function() {
   var json = anychart.core.Axis.base(this, 'serialize');
   anychart.core.settings.serialize(this, anychart.core.Axis.SIMPLE_PROPS_DESCRIPTORS, json);
+
+  if (!this.hasOwnOption('zIndex')) {
+    delete json['zIndex'];
+  }
+
   json['title'] = this.title().serialize();
   json['labels'] = this.labels().serialize();
   json['minorLabels'] = this.minorLabels().serialize();
