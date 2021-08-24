@@ -1021,7 +1021,7 @@ anychart.core.Axis.prototype.applyStaggerMode_ = function(opt_bounds) {
 /**
  * Calculate labels to draw.
  * @param {anychart.math.Rect=} opt_bounds Parent bounds.
- * @return {boolean|Object.<string, boolean|Array.<boolean>>} Object with indexes of labels to draw.
+ * @return {boolean|Object.<boolean|Array.<boolean>>} Object with indexes of labels to draw.
  * or Boolean when there are no labels.
  * @private
  */
@@ -1909,6 +1909,34 @@ anychart.core.Axis.prototype.updateZIndex = function() {
 
 
 /**
+ * Resolve label enabled state.
+ *
+ * @param {number} index
+ * @param {Array.<boolean>|boolean} states
+ * @return {boolean}
+ *
+ * @protected
+ */
+anychart.core.Axis.prototype.resolveLabelEnabledState = function(index, states) {
+  return goog.isArray(states) ? states[index] : states;
+};
+
+
+/**
+ * Resolve tick enabled state.
+ *
+ * @param {number} index
+ * @param {Array.<boolean>|boolean} states
+ * @return {boolean}
+ *
+ * @protected
+ */
+anychart.core.Axis.prototype.resolveTickEnabledState = function(index, states) {
+  return goog.isArray(states) ? states[index] : goog.isBoolean(states);
+};
+
+
+/**
  * Axis drawing.
  * @return {anychart.core.Axis} An instance of {@link anychart.core.Axis} class for method chaining.
  */
@@ -1992,7 +2020,7 @@ anychart.core.Axis.prototype.draw = function() {
   }
 
   if (goog.isDef(ticksDrawer) || goog.isDef(minorTicksDrawer)) {
-    var i, j, overlappedLabels, needDrawLabels, needDrawMinorLabels;
+    var i, j, needDrawLabels, needDrawMinorLabels;
 
     var scaleTicksArr = scale.ticks().get();
     var ticksArrLen = scaleTicksArr.length;
@@ -2007,7 +2035,7 @@ anychart.core.Axis.prototype.draw = function() {
     var isOrdinal = anychart.utils.instanceOf(scale, anychart.scales.Ordinal);
 
     if (anychart.utils.instanceOf(scale, anychart.scales.ScatterBase)) {
-      overlappedLabels = this.calcLabels_();
+      var overlappedLabels = this.calcLabels_();
 
       if (goog.isObject(overlappedLabels)) {
         needDrawLabels = overlappedLabels.labels;
@@ -2043,8 +2071,8 @@ anychart.core.Axis.prototype.draw = function() {
         }
         if (((ratio <= minorRatio && i < ticksArrLen) || j == minorTicksArrLen)) {
           var majorPixelShift = tickThickness % 2 == 0 ? 0 : -.5;
-          drawLabel = goog.isArray(needDrawLabels) ? needDrawLabels[i] : needDrawLabels;
-          drawTick = (goog.isArray(needDrawLabels) && needDrawLabels[i]) || goog.isBoolean(needDrawLabels);
+          drawLabel = this.resolveLabelEnabledState(i, needDrawLabels);
+          drawTick = this.resolveTickEnabledState(i, needDrawLabels);
           if (drawTick && ticksDrawer)
             ticksDrawer.call(
                 ticks,
@@ -2066,8 +2094,8 @@ anychart.core.Axis.prototype.draw = function() {
           i++;
         } else {
           var minorPixelShift = minorTickThickness % 2 == 0 ? 0 : -.5;
-          drawLabel = goog.isArray(needDrawMinorLabels) ? needDrawMinorLabels[j] : needDrawMinorLabels;
-          drawTick = (goog.isArray(needDrawMinorLabels) && needDrawMinorLabels[j]) || goog.isBoolean(needDrawMinorLabels);
+          drawLabel = this.resolveLabelEnabledState(j, needDrawMinorLabels);
+          drawTick = this.resolveTickEnabledState(j, needDrawMinorLabels);
 
           if (drawTick && minorTicksDrawer && prevMajorRatio != minorRatio)
             minorTicksDrawer.call(
