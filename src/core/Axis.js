@@ -1912,12 +1912,13 @@ anychart.core.Axis.prototype.updateZIndex = function() {
  * Resolve label enabled state.
  *
  * @param {number} index
+ * @param {Array.<number|string>} values
  * @param {Array.<boolean>|boolean} states
  * @return {boolean}
  *
  * @protected
  */
-anychart.core.Axis.prototype.resolveLabelEnabledState = function(index, states) {
+anychart.core.Axis.prototype.resolveLabelEnabledState = function(index, values, states) {
   return goog.isArray(states) ? states[index] : states;
 };
 
@@ -1926,12 +1927,13 @@ anychart.core.Axis.prototype.resolveLabelEnabledState = function(index, states) 
  * Resolve tick enabled state.
  *
  * @param {number} index
+ * @param {Array.<number|string>} values
  * @param {Array.<boolean>|boolean} states
  * @return {boolean}
  *
  * @protected
  */
-anychart.core.Axis.prototype.resolveTickEnabledState = function(index, states) {
+anychart.core.Axis.prototype.resolveTickEnabledState = function(index, values, states) {
   return goog.isArray(states) ? states[index] : goog.isBoolean(states);
 };
 
@@ -2071,8 +2073,8 @@ anychart.core.Axis.prototype.draw = function() {
         }
         if (((ratio <= minorRatio && i < ticksArrLen) || j == minorTicksArrLen)) {
           var majorPixelShift = tickThickness % 2 == 0 ? 0 : -.5;
-          drawLabel = this.resolveLabelEnabledState(i, needDrawLabels);
-          drawTick = this.resolveTickEnabledState(i, needDrawLabels);
+          drawLabel = this.resolveLabelEnabledState(i, scaleTicksArr, needDrawLabels);
+          drawTick = this.resolveTickEnabledState(i, scaleTicksArr, needDrawLabels);
           if (drawTick && ticksDrawer)
             ticksDrawer.call(
                 ticks,
@@ -2094,8 +2096,8 @@ anychart.core.Axis.prototype.draw = function() {
           i++;
         } else {
           var minorPixelShift = minorTickThickness % 2 == 0 ? 0 : -.5;
-          drawLabel = this.resolveLabelEnabledState(j, needDrawMinorLabels);
-          drawTick = this.resolveTickEnabledState(j, needDrawMinorLabels);
+          drawLabel = this.resolveLabelEnabledState(j, scaleMinorTicksArr, needDrawMinorLabels);
+          drawTick = this.resolveTickEnabledState(j, scaleMinorTicksArr, needDrawMinorLabels);
 
           if (drawTick && minorTicksDrawer && prevMajorRatio != minorRatio)
             minorTicksDrawer.call(
@@ -2277,12 +2279,13 @@ anychart.core.Axis.prototype.getLabelsFormatProvider = function(index, value) {
   return context.propagate();
 };
 
+
 /**
  * Returns ration for the axis by passed tick value.
  *
  * @param {number|Array<number>} value - Tick value.
  *
- * @returns {number}
+ * @return {number}
  */
 anychart.core.Axis.prototype.getRatioForTickValue = function(value) {
   var scale = /** @type {anychart.scales.ScatterBase|anychart.scales.Ordinal} */(this.scale());
@@ -2295,6 +2298,8 @@ anychart.core.Axis.prototype.getRatioForTickValue = function(value) {
   }
   return ratio;
 };
+
+
 /**
  * Returns position provider.
  * @param {number} index Label index.

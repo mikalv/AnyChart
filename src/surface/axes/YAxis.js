@@ -116,6 +116,32 @@ anychart.surfaceModule.axes.YAxis.prototype.getLabelPosition = function(ratio, o
 
 //endregion
 //region --- Labels
+
+
+/** @inheritDoc */
+anychart.surfaceModule.axes.YAxis.prototype.resolveLabelEnabledState = function(index, values, states) {
+  var enabled = anychart.surfaceModule.axes.YAxis.base(this, 'resolveLabelEnabledState', index, values, states);
+
+  if (enabled) {
+    var rawAngle = /**@type {number} */(this.rotationZ());
+    var inverted = Math.floor(rawAngle * 2 / 360) % 2 !== 0;
+    var angle = goog.math.standardAngle(rawAngle);
+
+    angle = inverted ^ this.scale().inverted() ? angle - 180 : angle;
+
+    var indexToHide;
+
+    if ((angle >= 45 && angle <= 90) || (angle > 90 && angle < 135)) {
+      indexToHide = inverted ? 0 : values.length - 1;
+    }
+
+    return index !== indexToHide;
+  }
+
+  return enabled;
+};
+
+
 /** @inheritDoc */
 anychart.surfaceModule.axes.YAxis.prototype.getLabelDrawPosition = function(ratio, labelBounds, staggerSize, tickLength, pixelShift, labelsSidePosition, isMajor) {
   var labels = isMajor ? this.labels() : this.minorLabels();

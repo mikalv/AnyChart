@@ -165,8 +165,8 @@ anychart.surfaceModule.axes.Base.prototype.createTicks = function() {
  * @return {anychart.surfaceModule.axes.Base|number}
  */
 anychart.surfaceModule.axes.Base.prototype.rotationY = function(opt_value) {
-  opt_value = anychart.core.settings.numberNormalizer(opt_value);
   if (goog.isDef(opt_value)) {
+    opt_value = anychart.core.settings.numberNormalizer(opt_value);
     if (this.rotationY_ != opt_value) {
       this.rotationY_ = opt_value;
       this.invalidate(anychart.ConsistencyState.APPEARANCE | this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW |
@@ -185,8 +185,8 @@ anychart.surfaceModule.axes.Base.prototype.rotationY = function(opt_value) {
  * @return {anychart.surfaceModule.axes.Base|number}
  */
 anychart.surfaceModule.axes.Base.prototype.rotationZ = function(opt_value) {
-  opt_value = anychart.core.settings.numberNormalizer(opt_value);
   if (goog.isDef(opt_value)) {
+    opt_value = anychart.core.settings.numberNormalizer(opt_value);
     if (this.rotationZ_ != opt_value) {
       this.rotationZ_ = opt_value;
       this.invalidate(anychart.ConsistencyState.APPEARANCE | this.ALL_VISUAL_STATES, anychart.Signal.NEEDS_REDRAW |
