@@ -1733,6 +1733,51 @@ anychart.stockModule.Plot.prototype.onTitleSignal_ = function(event) {
 };
 
 
+/**
+ * Calculate distance between yRatio and closest series point.
+ *
+ * @param {anychart.stockModule.Series} series
+ * @param {anychart.stockModule.data.TableSelectable.RowProxy} point
+ * @param {number} targetRatio
+ *
+ * @return {{
+ *   distance: number,
+ *   ratio: number
+ * }}
+ */
+anychart.stockModule.Plot.prototype.getDistanceToSeries = function(series, point, targetRatio) {
+  var distance = Infinity;
+  var ratio = 0;
+
+  if (point && series) {
+    var scale = series.yScale();
+
+    /*
+      Should consider that
+        - OHLC series returns 'close' as 'value'
+        - Range series returns 'high' as 'value'
+        - etc.
+     */
+    var value = anychart.utils.getFirstNotNullValue(point.get('value'), point.get('close'), point.get('high'));
+    value = anychart.utils.toNumber(value);
+    if (!isNaN(value)) {
+      var drawableAreaBounds = this.seriesBounds_;
+      var seriesBounds = series.getPixelBounds();
+      var pointYPosition =
+        seriesBounds.top + seriesBounds.height * (1 - scale.transform(scale.applyComparison(value, series.comparisonZero)));
+
+      ratio = (pointYPosition - drawableAreaBounds.top) / drawableAreaBounds.height;
+      distance = Math.abs(ratio - targetRatio);
+    }
+  }
+
+  return {
+    ratio: ratio,
+    distance: distance
+  };
+};
+
+
 //endregion
 //region Axis markers and defaults
 /**
@@ -2266,8 +2311,7 @@ anychart.stockModule.Plot.prototype.getSeriesStatus = function(xRatio, yRatio) {
     var series = plotInfo['series'];
 
     if (point) {
-      var seriesHeight = series.getPixelBounds().height;
-      var distance = this.chart_.getDistanceToSeries(series, point, yRatio).distance * seriesHeight;
+      var distance = this.getDistanceToSeries(series, point, yRatio).distance * this.seriesBounds_.height;
 
       seriesStatus.push({
         'series': series,
