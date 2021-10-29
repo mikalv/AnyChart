@@ -8,6 +8,7 @@ import sys
 import subprocess
 import platform
 import urllib
+import urllib2
 import zipfile
 import time
 import argparse
@@ -264,16 +265,16 @@ def __get_build_version():
 
     if travis_branch is not None:
         # see https://anychart.atlassian.net/browse/DVF-3193
-        get_curl_options = lambda url: ['curl', '-s', '-H', 'Authorization: token %s' % (github_token if github_token else ''), url]
+        get_request = lambda url: urllib2.Request(url, None, {'Authorization' : 'token %s' % github_token if github_token else ''})
 
-        contributors_response = subprocess.Popen(get_curl_options(GIT_CONTRIBUTORS_URL), stdout=subprocess.PIPE).communicate()[0]
-        contributors_data = json.loads(contributors_response)
+        contributors_response = urllib2.urlopen(get_request(GIT_CONTRIBUTORS_URL))
+        contributors_data = json.loads(contributors_response.read())
         contributions = 0
         for contributor in contributors_data:
             contributions += contributor['contributions']
 
-        compare_response = subprocess.Popen(get_curl_options(GIT_COMPARE_URL_TEMPLATE % travis_branch), stdout=subprocess.PIPE).communicate()[0]
-        compare_data = json.loads(compare_response)
+        compare_response = urllib2.urlopen(get_request(GIT_COMPARE_URL_TEMPLATE % travis_branch))
+        compare_data = json.loads(compare_response.read())
 
         behind_by = compare_data.get('behind_by', 0)
         ahead_by = compare_data.get('ahead_by', 0)
