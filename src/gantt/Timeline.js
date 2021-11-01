@@ -3497,8 +3497,6 @@ anychart.ganttModule.TimeLine.prototype.drawProjectTimeline_ = function() {
 
     if (isFullValidBaseline) {
       this.drawAsBaseline_(item, totalTop, itemHeight, info);
-    } else if (isBaselineLike) { 
-      this.drawAsBaselineLike_(item, totalTop, itemHeight, info);
     } else if (isGroupOrLoadable) {
       this.drawAsParent_(item, totalTop, itemHeight, info);
     } else if (isProjectMilestone || isProjectBaselineMilestone) {
@@ -3516,6 +3514,8 @@ anychart.ganttModule.TimeLine.prototype.drawProjectTimeline_ = function() {
         var baselineMilestoneTop = above ? totalTop : totalTop + baselineMilestoneHeight;
         this.drawAsMilestone_(baselineMilestones, item, baselineMilestoneTop, baselineMilestoneHeight, info);
       }
+    } else if (isBaselineLike) { 
+      this.drawAsBaselineLike_(item, totalTop, itemHeight, info);
     } else {
       this.drawAsProgress_(item, totalTop, itemHeight, info);
     }
@@ -5524,8 +5524,17 @@ anychart.ganttModule.TimeLine.prototype.cropCurrentTagLabel_ = function(prev, cu
   var minimumAllowedWidth = 20;
 
   if (newWidth >= minimumAllowedWidth && newWidth < curTagLabelBounds.width) {
-    cur.label.width(newWidth);
-    cur.label.height(curTagLabelBounds.height);
+    var verticalIntersection = false;
+    if (next) {
+      var nextTagLabelBounds = this.getTagLabelBounds_(next.label);
+      var minTop = Math.min(curTagLabelBounds.top, nextTagLabelBounds.top);
+      var maxBottom = Math.max(curTagLabelBounds.top + curTagLabelBounds.height, nextTagLabelBounds.top + nextTagLabelBounds.height);
+      verticalIntersection = maxBottom - minTop < curTagLabelBounds.height + nextTagLabelBounds.height;
+    }
+    if (verticalIntersection) {
+      cur.label.width(newWidth);
+      cur.label.height(curTagLabelBounds.height);
+    }
   } else if (newWidth < minimumAllowedWidth) {
     cur.label.enabled(false);
   }
@@ -5586,7 +5595,10 @@ anychart.ganttModule.TimeLine.prototype.insertTagForCropLabels_ = function(tag) 
 
   // TODO Add baselineMilestones and its preview support.
   var isProjectMilestonePreview =
-    (tag.type === anychart.enums.TLElementTypes.MILESTONES_PREVIEW);
+    (
+      tag.type === anychart.enums.TLElementTypes.MILESTONES_PREVIEW || 
+      tag.type === anychart.enums.TLElementTypes.BASELINE_MILESTONES_PREVIEW
+    );
 
   var isResource = this.controller.isResources();
 

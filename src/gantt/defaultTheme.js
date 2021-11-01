@@ -674,13 +674,13 @@ goog.mixin(goog.global['anychart']['themes']['defaultTheme'], {
       },
       'baselineMilestones': {
         'labels': {
-          'format': 'Planned: {%Name}',
+          'format': '{%Name}',
           'anchor': 'left-center',
           'position': 'right-center',
           'enabled': null
         },
         'tooltip': {
-          'titleFormat': 'Planned: {%Name}',
+          'titleFormat': '{%Name}',
           'format': '{%baselineStart}'
         }
       }
