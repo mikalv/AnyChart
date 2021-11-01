@@ -584,7 +584,7 @@ anychart.ganttModule.BaseGrid.prototype.selection = function() {
  */
  anychart.ganttModule.BaseGrid.isProjectBaselineMilestone = function(item, opt_info) {
   var info = opt_info || anychart.ganttModule.BaseGrid.getProjectItemInfo(item);
-  var sameStartEndMatch = info.isValidBaseline && info.baselineStart === info.baselineEnd;
+  var sameStartEndMatch = info.isValidBaselineStart && info.isValidBaselineEnd && info.baselineStart === info.baselineEnd;
   var invalidBaselineMilestoneMatch = info.isValidBaselineStart && !info.isValidBaselineEnd;
   return !item.numChildren() && (sameStartEndMatch || invalidBaselineMilestoneMatch);
 };
@@ -797,7 +797,7 @@ anychart.ganttModule.BaseGrid.getProjectItemInfo = function(item) {
     hasBaselineFields: hasBaselineFields,
     isValidTask: !isNaN(startVal) && !isNaN(endVal) && startVal != endVal,
     isFlatGroupingTask: !isNaN(startVal) && !isNaN(endVal) && startVal == endVal && item.numChildren(),
-    isValidBaseline: goog.isNumber(startBaselineVal) && !isNaN(startBaselineVal) && goog.isNumber(endBaselineVal) && !isNaN(endBaselineVal),
+    isValidBaseline: goog.isNumber(startBaselineVal) && !isNaN(startBaselineVal) && goog.isNumber(endBaselineVal) && !isNaN(endBaselineVal) && (startBaselineVal !== endBaselineVal),
     isValidProgress: !isNaN(progressVal),
     baselineProgressPresents: baselineProgressPresents,
     minPeriodDate: minPeriodDate,
